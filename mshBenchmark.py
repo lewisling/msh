@@ -6,25 +6,25 @@ import cv2
 import xml.etree.ElementTree as ET
 import time
 
-#------------------------------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 scale_factor = float(argv[1])
 min_neighbors = int(argv[2])
 xml_file = argv[3]
 sequence_path = argv[4]
 
-#------------------------------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-#------------------------------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 n_frames = 0
 n_total_faces = 0
 n_correct_faces = 0
 n_incorrect_faces = 0
 
-#------------------------------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 start_time = time.time()
 
@@ -74,7 +74,7 @@ for frame in dataset:
 
 stop_time = time.time()
 
-#------------------------------
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 xml_name = xml_file[xml_file.rfind("/") + 1:]
 

@@ -14,5 +14,4 @@ and perform various efficiency tests:
 
 mshBenchmark - performs various efficiency tests
 
-mshFacerecTrain - trains face recognizer. Results are written to XML 
-or YAML file.
+mshFacerecTrain - trains face recognizer. Results are written to XML.

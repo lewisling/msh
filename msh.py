@@ -26,7 +26,7 @@ parser.add_argument(
 parser.add_argument(
 	"facerec_method",
 	help = "face recognition method",
-	choices = ["eigenfaces", "fisherfaces"])
+	choices = ["eigenfaces", "fisherfaces", "lbph"])
 parser.add_argument(
 	"facerec_model_path",
 	help = "path to XML file with model state for chosen \
@@ -69,8 +69,11 @@ face_cascade = cv2.CascadeClassifier(args.haar_cascade_path)
 
 if args.facerec_method == "eigenfaces":
 	face_recognizer = cv2.createEigenFaceRecognizer(0, args.facerec_threshold)
-else:
+elif args.facerec_method == "fisherfaces":
 	face_recognizer = cv2.createFisherFaceRecognizer(0, args.facerec_threshold)
+else:
+	face_recognizer = cv2.createLBPHFaceRecognizer(
+		1, 8, 8, 8, args.facerec_threshold)
 face_recognizer.load(args.facerec_model_path)
 
 # temporary!
@@ -90,7 +93,9 @@ while(True):
 		gray_frame, args.scale_factor, args.min_neighbors)
 	for (x, y, w, h) in faces:
 		face_img = gray_frame[y:(y + h), x:(x + w)]
-		face_img = cv2.resize(face_img, train_face_size)
+		# resize of detected face is not required for LBPH
+		if args.facerec_method != "lbph":
+			face_img = cv2.resize(face_img, train_face_size)
 		[label, confidence] = face_recognizer.predict(np.asarray(face_img))
 		cv2.rectangle(
 			stream_reader.current_frame, 

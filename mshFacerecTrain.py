@@ -24,7 +24,7 @@ parser.add_argument(
 parser.add_argument(
 	"method",
 	help = "choose face recognition method for which training is performed",
-	choices = ["eigenfaces", "fisherfaces"])
+	choices = ["eigenfaces", "fisherfaces", "lbph"])
 args = parser.parse_args()
 
 
@@ -59,8 +59,10 @@ train_faces_index = np.asarray(train_faces_index, dtype = np.int32)
 
 if args.method == "eigenfaces":
 	face_recognizer = cv2.createEigenFaceRecognizer()
-else:
+elif args.method == "fisherfaces":
 	face_recognizer = cv2.createFisherFaceRecognizer()
+else:
+	face_recognizer = cv2.createLBPHFaceRecognizer()
 face_recognizer.train(
 	np.asarray(train_faces_image), 
 	np.asarray(train_faces_index))	

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from sys import argv
+import sys
 import time
 import argparse
 import numpy as np
@@ -49,6 +49,11 @@ parser.add_argument(
 	help = "one of the face detection algorithm parameters",
 	default = 5,
 	type = int)
+parser.add_argument(
+	"-ft", "--facerec_threshold",
+	help = "face recognition threshold parameter, bigger means less accurate",
+	default = sys.float_info.max,
+	type = float)
 args = parser.parse_args()
 
 
@@ -63,9 +68,9 @@ else:
 face_cascade = cv2.CascadeClassifier(args.haar_cascade_path)
 
 if args.facerec_method == "eigenfaces":
-	face_recognizer = cv2.createEigenFaceRecognizer()
+	face_recognizer = cv2.createEigenFaceRecognizer(0, args.facerec_threshold)
 else:
-	face_recognizer = cv2.createFisherFaceRecognizer()
+	face_recognizer = cv2.createFisherFaceRecognizer(0, args.facerec_threshold)
 face_recognizer.load(args.facerec_model_path)
 
 # temporary!

@@ -3,6 +3,7 @@
 from sys import argv
 import time
 import argparse
+import numpy as np
 import cv2
 import streamreader
 
@@ -31,8 +32,12 @@ parser.add_argument(
 	help = "path to XML file with model state for chosen \
 		face recognition method")
 parser.add_argument(
-	"-v", "--verbose",
+	"-o", "--on_screen_info",
 	help = "enable on-screen informations",
+	action = "store_true")
+parser.add_argument(
+	"-v", "--verbose",
+	help = "print various informations to stdout",
 	action = "store_true")
 parser.add_argument(
 	"-sf", "--scale_factor",
@@ -57,6 +62,15 @@ else:
 	stream_reader = streamreader.Stream(args.stream_path)
 face_cascade = cv2.CascadeClassifier(args.haar_cascade_path)
 
+if args.facerec_method == "eigenfaces":
+	face_recognizer = cv2.createEigenFaceRecognizer()
+else:
+	face_recognizer = cv2.createFisherFaceRecognizer()
+face_recognizer.load(args.facerec_model_path)
+
+# temporary!
+train_face_size = (96, 96)
+
 
 while(True):
 	begin_time = time.time()
@@ -70,16 +84,24 @@ while(True):
 	faces = face_cascade.detectMultiScale(
 		gray_frame, args.scale_factor, args.min_neighbors)
 	for (x, y, w, h) in faces:
+		face_img = gray_frame[y:(y + h), x:(x + w)]
+		face_img = cv2.resize(face_img, train_face_size)
+		[label, confidence] = face_recognizer.predict(np.asarray(face_img))
 		cv2.rectangle(
-		stream_reader.current_frame, 
-		(x, y), (x + w, y + h), (255, 255, 255), 2)
+			stream_reader.current_frame, 
+			(x, y), (x + w, y + h), (255, 255, 255), 2)
+		if label != -1:
+			cv2.putText(
+				stream_reader.current_frame, 
+				"ID: " + str(label) + " , conf.: " + str(round(confidence)), 
+				(x, y), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
 		
 	finish_time = time.time()
 
-	if args.verbose:
+	if args.on_screen_info:
 		cv2.putText(
 			stream_reader.current_frame, 
-			"FPS: " + str(round(1 / (finish_time - begin_time), 2)), 
+			"FPS: " + str(round(1 / (finish_time - begin_time), 1)), 
 			(0, 12), 
 			cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
 	cv2.imshow("mlnSpyHole - main window", stream_reader.current_frame)

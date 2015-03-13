@@ -78,4 +78,5 @@ face_recognizer.save(cropped_faces_dir + "/" + xmlfile_name + ".xml")
 ## TODO: sending report to stdout
 
 if not args.quiet:
-	print face_recognizer.getInt("ncomponents")
+	if args.method != "lbph":
+		print face_recognizer.getInt("ncomponents")

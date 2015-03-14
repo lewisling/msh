@@ -2,6 +2,7 @@
 
 from sys import argv
 import os
+import time
 import fnmatch
 import argparse
 import numpy as np
@@ -34,6 +35,7 @@ cropped_faces_dir = args.cropped_faces_dir
 train_faces_image = []
 train_faces_index = []
 
+
 ## fixing cropped_faces_dir  
 
 if cropped_faces_dir[len(cropped_faces_dir) - 1] == '/':
@@ -42,6 +44,8 @@ if cropped_faces_dir[len(cropped_faces_dir) - 1] == '/':
 	
 ## resursive processing of given directory
 # TODO: maybe add support for different types of frames, not only .pgm?
+
+begin_time = time.time()
 
 for root, dirs, names in os.walk(cropped_faces_dir):
 	if dirs == []:
@@ -67,6 +71,8 @@ face_recognizer.train(
 	np.asarray(train_faces_image), 
 	np.asarray(train_faces_index))	
 	
+finish_time = time.time()
+	
 	
 ## saving trained set
 
@@ -80,3 +86,7 @@ face_recognizer.save(cropped_faces_dir + "/" + xmlfile_name + ".xml")
 if not args.quiet:
 	if args.method != "lbph":
 		print face_recognizer.getInt("ncomponents")
+	print xmlfile_name \
+		+ ": " \
+		+ str(round(finish_time - begin_time, 2)) \
+		+ " seconds"

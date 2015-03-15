@@ -26,14 +26,26 @@ parser.add_argument(
 	"method",
 	help = "choose face recognition method for which training is performed",
 	choices = ["eigenfaces", "fisherfaces", "lbph"])
+parser.add_argument(
+	"-hc", "--haar_cascade_path",
+	help = "if given, cropped face images are preprocesed by face detector \
+		(some kind of normalization)")
 args = parser.parse_args()
 
 
 ## initializing variables
 
+train_faces_images = []
+train_faces_indexes = []
 cropped_faces_dir = args.cropped_faces_dir
-train_faces_image = []
-train_faces_index = []
+if args.haar_cascade_path:
+	face_cascade = cv2.CascadeClassifier(args.haar_cascade_path)
+	if face_cascade.empty():
+		print "Something went wrong with Haar Cascade, exiting..."
+		exit()
+		
+# temporary!
+train_face_size = (96, 96)
 
 
 ## fixing cropped_faces_dir  
@@ -52,11 +64,18 @@ for root, dirs, names in os.walk(cropped_faces_dir):
 		for name in names:
 			if fnmatch.fnmatch(name, '*.pgm'):
 				path = os.path.join(root, name)
-				im = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-				train_faces_image.append(np.asarray(im, dtype = np.uint8))
+				face = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+				if args.haar_cascade_path:
+					haar_faces = face_cascade.detectMultiScale(face, 1.01, 5)
+					if len(haar_faces) != 1:
+						continue
+					[x, y, w, h] = haar_faces[0]
+					face = face[y:(y + h), x:(x + w)]
+					face = cv2.resize(face, train_face_size)
+				train_faces_images.append(np.asarray(face, dtype = np.uint8))
 				index = root[root.rfind("/") + 1:]
-				train_faces_index.append(index)
-train_faces_index = np.asarray(train_faces_index, dtype = np.int32)
+				train_faces_indexes.append(index)
+train_faces_indexes = np.asarray(train_faces_indexes, dtype = np.int32)
 
 
 ## training chosen face recognizer
@@ -68,8 +87,8 @@ elif args.method == "fisherfaces":
 else:
 	face_recognizer = cv2.createLBPHFaceRecognizer()
 face_recognizer.train(
-	np.asarray(train_faces_image), 
-	np.asarray(train_faces_index))	
+	np.asarray(train_faces_images), 
+	np.asarray(train_faces_indexes))	
 	
 finish_time = time.time()
 	

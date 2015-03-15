@@ -53,8 +53,8 @@ for root, dirs, names in os.walk(cropped_faces_dir):
 			if fnmatch.fnmatch(name, '*.pgm'):
 				path = os.path.join(root, name)
 				im = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-				index = root[root.rfind("/") + 1:]
 				train_faces_image.append(np.asarray(im, dtype = np.uint8))
+				index = root[root.rfind("/") + 1:]
 				train_faces_index.append(index)
 train_faces_index = np.asarray(train_faces_index, dtype = np.int32)
 

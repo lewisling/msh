@@ -93,13 +93,11 @@ while(True):
 		gray_frame, args.scale_factor, args.min_neighbors)
 	for (x, y, w, h) in faces:
 		face_img = gray_frame[y:(y + h), x:(x + w)]
-		# resize of detected face is not required for LBPH
-		if args.facerec_method != "lbph":
-			face_img = cv2.resize(face_img, train_face_size)
+		face_img = cv2.resize(face_img, train_face_size)
 		[label, confidence] = face_recognizer.predict(np.asarray(face_img))
 		cv2.rectangle(
 			stream_reader.current_frame, 
-			(x, y), (x + w, y + h), (255, 255, 255), 2)
+			(x, y), (x + w, y + h), (255, 255, 255), 1)
 		if label != -1:
 			cv2.putText(
 				stream_reader.current_frame, 

@@ -36,7 +36,7 @@ args = parser.parse_args()
 ## initializing variables
 
 train_faces_images = []
-train_faces_indexes = []
+train_faces_indices = []
 cropped_faces_dir = args.cropped_faces_dir
 if args.haar_cascade_path:
 	face_cascade = cv2.CascadeClassifier(args.haar_cascade_path)
@@ -74,8 +74,8 @@ for root, dirs, names in os.walk(cropped_faces_dir):
 					face = cv2.resize(face, train_face_size)
 				train_faces_images.append(np.asarray(face, dtype = np.uint8))
 				index = root[root.rfind("/") + 1:]
-				train_faces_indexes.append(index)
-train_faces_indexes = np.asarray(train_faces_indexes, dtype = np.int32)
+				train_faces_indices.append(index)
+train_faces_indices = np.asarray(train_faces_indices, dtype = np.int32)
 
 
 ## training chosen face recognizer
@@ -88,7 +88,7 @@ else:
 	face_recognizer = cv2.createLBPHFaceRecognizer()
 face_recognizer.train(
 	np.asarray(train_faces_images), 
-	np.asarray(train_faces_indexes))	
+	np.asarray(train_faces_indices))	
 	
 finish_time = time.time()
 	

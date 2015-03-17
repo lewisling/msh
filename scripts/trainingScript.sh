@@ -15,7 +15,8 @@ for path in $cropped_faces_dir* ; do
 				for method in $methods ; do
 					echo "$sequence $method"
 					python $script_path$script_name \
-					$path/$sequence $method >> $results_file
+					$path/$sequence $method \
+					-hc ~/code/python-projects/tmp/haarcascade_frontalface_default.xml >> $results_file
 					
 				done
 			fi

@@ -86,6 +86,9 @@ elif args.method == "fisherfaces":
 	face_recognizer = cv2.createFisherFaceRecognizer()
 else:
 	face_recognizer = cv2.createLBPHFaceRecognizer()
+	
+if not args.quiet:
+	print "Begin training recognizer..."
 face_recognizer.train(
 	np.asarray(train_faces_images), 
 	np.asarray(train_faces_indices))	
@@ -95,6 +98,8 @@ finish_time = time.time()
 	
 ## saving trained set
 
+if not args.quiet:
+	print "Begin saving..."
 xmlfile_name = cropped_faces_dir[cropped_faces_dir.rfind("/") + 1:]
 xmlfile_name = xmlfile_name + "-" + args.method
 face_recognizer.save(cropped_faces_dir + "/" + xmlfile_name + ".xml")

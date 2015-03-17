@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import sys
+import glob
 import time
 import argparse
 import numpy as np
@@ -36,6 +37,10 @@ parser.add_argument(
 	help = "enable on-screen informations",
 	action = "store_true")
 parser.add_argument(
+	"-rf", "--reference_faces_path",
+	help = "enable displaying miniatures of detected id, \
+		taken from given path")
+parser.add_argument(
 	"-v", "--verbose",
 	help = "print various informations to stdout",
 	action = "store_true")
@@ -51,7 +56,8 @@ parser.add_argument(
 	type = int)
 parser.add_argument(
 	"-ft", "--facerec_threshold",
-	help = "face recognition threshold parameter, bigger means less accurate",
+	help = "face recognition threshold parameter, \
+		bigger means less accurate",
 	default = sys.float_info.max,
 	type = float)
 args = parser.parse_args()
@@ -66,6 +72,19 @@ elif args.stream_type == "multiplefiles":
 else:
 	stream_reader = streamreader.Stream(args.stream_path)
 face_cascade = cv2.CascadeClassifier(args.haar_cascade_path)
+
+if args.reference_faces_path:
+	reference_faces_indices = []
+	reference_faces_images = []
+	reference_faces_paths = sorted(
+		glob.glob(args.reference_faces_path + '*.pgm'))
+	for path in reference_faces_paths:
+		index = int(path[path.rfind("/") + 1:path.rfind(".")])
+		reference_faces_indices.append(index)
+		face_img = cv2.imread(path)
+		reference_faces_images.append(face_img)
+	reference_faces = dict(
+		zip(reference_faces_indices, reference_faces_images))
 
 if args.facerec_method == "eigenfaces":
 	face_recognizer = cv2.createEigenFaceRecognizer(0, args.facerec_threshold)
@@ -103,6 +122,8 @@ while(True):
 				stream_reader.current_frame, 
 				"ID: " + str(label) + " , conf.: " + str(round(confidence)), 
 				(x, y), cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
+			if args.reference_faces_path:
+				cv2.imshow("mlnSpyHole - face window", reference_faces[label])
 		
 	finish_time = time.time()
 

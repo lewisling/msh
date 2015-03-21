@@ -74,6 +74,9 @@ elif args.stream_type == "stream":
 else:
 	pass
 face_cascade = cv2.CascadeClassifier(args.haar_cascade_path)
+if face_cascade.empty():
+	print "Something went wrong with face HaarCascade, exiting..."
+	exit()
 
 if args.reference_faces_path:
 	reference_faces_indices = []
@@ -97,7 +100,11 @@ elif args.facerec_method == "lbph":
 		1, 8, 8, 8, args.facerec_threshold)
 else:
 	pass
-face_recognizer.load(args.facerec_model_path)
+try:
+	face_recognizer.load(args.facerec_model_path)
+except:
+	print "Something went wrong face recognizer model, exiting..."
+	exit()
 
 # temporary!
 train_face_size = (96, 96)

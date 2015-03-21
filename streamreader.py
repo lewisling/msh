@@ -23,7 +23,7 @@ class MultipleFiles(StreamReader):
 
 	def __init__(self, path):
 		super(MultipleFiles, self).__init__(path)
-		self._frames_paths = iter(sorted(glob.glob(self.path + '*.jpg')))
+		self._frames_paths = iter(sorted(glob.glob(self.path + "*.jpg")))
 		
 	def __del__(self):
 		super(MultipleFiles, self).__del__()

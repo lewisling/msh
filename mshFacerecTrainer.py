@@ -62,7 +62,7 @@ begin_time = time.time()
 for root, dirs, names in os.walk(cropped_faces_dir):
 	if dirs == []:
 		for name in names:
-			if fnmatch.fnmatch(name, '*.pgm'):
+			if fnmatch.fnmatch(name, "*.pgm"):
 				path = os.path.join(root, name)
 				face = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 				if args.haar_cascade_path:
@@ -73,7 +73,7 @@ for root, dirs, names in os.walk(cropped_faces_dir):
 					face = face[y:(y + h), x:(x + w)]
 					face = cv2.resize(face, train_face_size)
 				train_faces_images.append(np.asarray(face, dtype = np.uint8))
-				index = root[root.rfind("/") + 1:]
+				index = root[root.rfind('/') + 1:]
 				train_faces_indices.append(index)
 train_faces_indices = np.asarray(train_faces_indices, dtype = np.int32)
 
@@ -84,8 +84,10 @@ if args.method == "eigenfaces":
 	face_recognizer = cv2.createEigenFaceRecognizer()
 elif args.method == "fisherfaces":
 	face_recognizer = cv2.createFisherFaceRecognizer()
-else:
+elif args.method == "lbph":
 	face_recognizer = cv2.createLBPHFaceRecognizer()
+else:
+	pass
 	
 if not args.quiet:
 	print "Begin training recognizer..."
@@ -100,9 +102,9 @@ finish_time = time.time()
 
 if not args.quiet:
 	print "Begin saving..."
-xmlfile_name = cropped_faces_dir[cropped_faces_dir.rfind("/") + 1:]
-xmlfile_name = xmlfile_name + "-" + args.method
-face_recognizer.save(cropped_faces_dir + "/" + xmlfile_name + ".xml")
+xmlfile_name = cropped_faces_dir[cropped_faces_dir.rfind('/') + 1:]
+xmlfile_name = xmlfile_name + '-' + args.method
+face_recognizer.save(cropped_faces_dir + '/' + xmlfile_name + ".xml")
 
 
 ## TODO: sending report to stdout

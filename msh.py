@@ -69,17 +69,19 @@ if args.stream_type == "onefile":
 	stream_reader = streamreader.OneFile(args.stream_path)
 elif args.stream_type == "multiplefiles":
 	stream_reader = streamreader.MultipleFiles(args.stream_path)
-else:
+elif args.stream_type == "stream":
 	stream_reader = streamreader.Stream(args.stream_path)
+else:
+	pass
 face_cascade = cv2.CascadeClassifier(args.haar_cascade_path)
 
 if args.reference_faces_path:
 	reference_faces_indices = []
 	reference_faces_images = []
 	reference_faces_paths = sorted(
-		glob.glob(args.reference_faces_path + '*.pgm'))
+		glob.glob(args.reference_faces_path + "*.pgm"))
 	for path in reference_faces_paths:
-		index = int(path[path.rfind("/") + 1:path.rfind(".")])
+		index = int(path[path.rfind('/') + 1:path.rfind('.')])
 		reference_faces_indices.append(index)
 		face_img = cv2.imread(path)
 		reference_faces_images.append(face_img)
@@ -90,9 +92,11 @@ if args.facerec_method == "eigenfaces":
 	face_recognizer = cv2.createEigenFaceRecognizer(0, args.facerec_threshold)
 elif args.facerec_method == "fisherfaces":
 	face_recognizer = cv2.createFisherFaceRecognizer(0, args.facerec_threshold)
-else:
+elif args.facerec_method == "lbph":
 	face_recognizer = cv2.createLBPHFaceRecognizer(
 		1, 8, 8, 8, args.facerec_threshold)
+else:
+	pass
 face_recognizer.load(args.facerec_model_path)
 
 # temporary!

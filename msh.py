@@ -47,12 +47,12 @@ parser.add_argument(
 parser.add_argument(
 	"-sf", "--scale_factor",
 	help = "one of the face detection algorithm parameters",
-	default = 1.3,
+	default = 1.5,
 	type = float)
 parser.add_argument(
 	"-mn", "--min_neighbors",
 	help = "one of the face detection algorithm parameters",
-	default = 5,
+	default = 6,
 	type = int)
 parser.add_argument(
 	"-ft", "--facerec_threshold",

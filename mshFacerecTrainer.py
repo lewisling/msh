@@ -66,7 +66,7 @@ for root, dirs, names in os.walk(cropped_faces_dir):
 				path = os.path.join(root, name)
 				face = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
 				if args.haar_cascade_path:
-					haar_faces = face_cascade.detectMultiScale(face, 1.01, 5)
+					haar_faces = face_cascade.detectMultiScale(face, 1.01, 6)
 					if len(haar_faces) != 1:
 						continue
 					[x, y, w, h] = haar_faces[0]

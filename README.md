@@ -15,3 +15,5 @@ and perform various efficiency tests:
 mshBenchmark - performs various efficiency tests
 
 mshFacerecTrainer - trains face recognizer. Results are written to XML.
+
+mshFacerecCropper - crop faces from given sequence

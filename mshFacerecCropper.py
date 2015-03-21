@@ -67,6 +67,12 @@ if args.stream_path[len(args.stream_path) - 1] != '/':
 	args.stream_path += '/'
 if args.target_path[len(args.target_path) - 1] != '/':
 	args.target_path += '/'
+if not os.path.exists(args.target_path):
+	try:
+		os.mkdir(args.target_path)
+	except:
+		print "Can't mkdir target directories"
+		exit()
 	
 if args.id_type == "xml":
 	# frames_content[frame_name, person_id, left_eye, right_eye]
@@ -118,15 +124,19 @@ else:
 ## checking for subjects directories existence in target_path
 ## and possibly creating them if not exists
 
-if args.id_type == "xml":
-	for _, person_id, _, _ in frames_content:
-		if not os.path.exists(args.target_path + person_id):
-			os.mkdir(args.target_path + person_id)
-elif args.id_type == "person":
-	if not os.path.exists(args.target_path + args.id_path):
-		os.mkdir(args.target_path + args.id_path)
-else:
-	pass
+try:
+	if args.id_type == "xml":
+		for _, person_id, _, _ in frames_content:
+			if not os.path.exists(args.target_path + person_id):
+				os.mkdir(args.target_path + person_id)
+	elif args.id_type == "person":
+		if not os.path.exists(args.target_path + args.id_path):
+			os.mkdir(args.target_path + args.id_path)
+	else:
+		pass
+except:
+	print "Can't mkdir target directories"
+	exit()
 
 
 ## creating array with frames paths to process further
@@ -166,11 +176,11 @@ for frame in frames_paths:
 				if (face_x >= 0 and face_y >= 0 and
 					face_x + face_size < frame_img.shape[1] and 
 					face_y + face_size < frame_img.shape[0]):
-					face_img = frame_img[
-						face_y:(face_y + face_size), 
-						face_x:(face_x + face_size)]
-					face_img = cv2.resize(face_img, target_image_size)
-					# TODO: cropped_face_img saving
+						face_img = frame_img[
+							face_y:(face_y + face_size), 
+							face_x:(face_x + face_size)]
+						face_img = cv2.resize(face_img, target_image_size)
+						# TODO: cropped_face_img saving
 
 cv2.destroyAllWindows()
 print "Exiting..."

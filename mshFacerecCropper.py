@@ -74,11 +74,12 @@ if not os.path.exists(args.target_path):
 		print "Can't mkdir target directories"
 		exit()
 	
+# frames_info[frame_path, person_id, left_eye, right_eye]
+# only frames which contains someone are loaded
+# it assumed that frame contains at most one face
+# in case of id_type = person eye coords are filled with "-1"
+frames_info = []
 if args.id_type == "xml":
-	# frames_content[frame_name, person_id, left_eye, right_eye]
-	# only frames which contains someone are loaded
-	# it assumed that frame contains at most one face
-	frames_content = []
 	try:
 		xmltree = xmlreader.parse(args.id_path)
 	except:
@@ -95,10 +96,13 @@ if args.id_type == "xml":
 					for eyes in person:
 						eye_coord.append(
 							(int(eyes.get('x')), int(eyes.get('y'))))
-					frames_content.append(
-						[frame_name, person_id, eye_coord[0], eye_coord[1]])
+					frames_info.append([
+						args.stream_path + frame_name + ".jpg", 
+						person_id, eye_coord[0], eye_coord[1]])
 elif args.id_type == "person":
-	pass
+	frames_paths = sorted(glob.glob(args.stream_path + "*.jpg"))
+	for frame_path in frames_paths:
+		frames_info.append([frame_path, args.id_path, (-1, -1), (-1, -1)])
 else:
 	pass
 	
@@ -126,7 +130,7 @@ else:
 
 try:
 	if args.id_type == "xml":
-		for _, person_id, _, _ in frames_content:
+		for _, person_id, _, _ in frames_info:
 			if not os.path.exists(args.target_path + person_id):
 				os.mkdir(args.target_path + person_id)
 	elif args.id_type == "person":
@@ -137,26 +141,13 @@ try:
 except:
 	print "Can't mkdir target directories"
 	exit()
-
-
-## creating array with frames paths to process further
-
-if args.id_type == "xml":
-	frames_paths = []
-	for i, _, _, _ in frames_content:
-		frames_paths.append(args.stream_path + i + ".jpg")
-elif args.id_type == "person":
-	frames_paths = sorted(glob.glob(args.stream_path + "*.jpg"))
-	pass
-else:
-	pass
 	
 
 ## main processing
 
-for frame in frames_paths:
+for (frame_path, person_id, left_eye, right_eye) in frames_info:
 	try:
-		frame_img = cv2.imread(frame, cv2.IMREAD_GRAYSCALE)
+		frame_img = cv2.imread(frame_path, cv2.IMREAD_GRAYSCALE)
 	except:
 		print "Reading sequence failed"
 		break
@@ -180,7 +171,12 @@ for frame in frames_paths:
 							face_y:(face_y + face_size), 
 							face_x:(face_x + face_size)]
 						face_img = cv2.resize(face_img, target_image_size)
-						# TODO: cropped_face_img saving
-
-cv2.destroyAllWindows()
+						frame_name = frame_path[
+							frame_path.rfind('/') + 1:frame_path.rfind(".")]
+						cv2.imwrite(
+							args.target_path + person_id + '/' +
+							files_prefix + '-' + frame_name + 
+							'.' + args.output_type, 
+							face_img)
+						
 print "Exiting..."

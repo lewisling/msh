@@ -38,6 +38,7 @@ class FaceCropper(object):
 		print eyepair_cascade_sf, eyepair_cascade_nm
 		print target_image_size
 		print eyes_position, eyes_width
+		print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		
 	def __del__(self):
 		print "~~~~~~ FaceCropper destroyer triggered ~~~~~~"

@@ -10,9 +10,11 @@ class StreamReader(object):
 	
 	def __init__(self, path):
 		self.path = path
+		print "~~~~~~ StreamReader created ~~~~~~"
+		print "Stream path: " + self.path
 		
 	def __del__(self):
-		print "StreamReader destroyer triggered"
+		print "~~~~~~ StreamReader destroyer triggered ~~~~~~"
 		
 	def read(self):
 		pass
@@ -23,6 +25,7 @@ class MultipleFiles(StreamReader):
 
 	def __init__(self, path):
 		super(MultipleFiles, self).__init__(path)
+		print "Stream type: multiplefiles"
 		self._frames_paths = iter(sorted(glob.glob(self.path + "*.jpg")))
 		
 	def __del__(self):
@@ -39,6 +42,7 @@ class OneFile(StreamReader):
 
 	def __init__(self, path):
 		super(OneFile, self).__init__(path)
+		print "Stream type: onefile"
 		
 	def __del__(self):
 		super(OneFile, self).__del__()
@@ -54,6 +58,7 @@ class Stream(StreamReader):
 
 	def __init__(self, path):
 		super(Stream, self).__init__(path)
+		print "Stream type: stream"
 		self._stream = cv2.VideoCapture(self.path)
 		
 	def __del__(self):

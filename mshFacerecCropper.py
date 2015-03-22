@@ -3,6 +3,7 @@
 import sys
 import os
 import glob
+import time
 import argparse
 import numpy as np
 import cv2
@@ -63,6 +64,8 @@ args = parser.parse_args()
 
 
 ## initializing variables
+
+begin_time = time.time()
 
 if args.stream_path[len(args.stream_path) - 1] != '/':
 	args.stream_path += '/'
@@ -161,5 +164,8 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 				files_prefix + '-' + frame_name + 
 				'.' + args.output_type, 
 				face_image)
-						
+
+finish_time = time.time()						
+print "Cropping images from " + args.stream_path + \
+	" took " + str(round(finish_time - begin_time)) + " seconds" 
 print "Exiting..."

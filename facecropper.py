@@ -31,10 +31,16 @@ class FaceCropper(object):
 			raise IOError("Eyepair cascade loading failed")
 			
 		# TODO: printing detailed description about created FaceCropper
-		print "FaceCropper created"
+		print "~~~~~~ FaceCropper created ~~~~~~"
+		print face_cascade_path
+		print eyepair_cascade_path
+		print face_cascade_sf, face_cascade_mn
+		print eyepair_cascade_sf, eyepair_cascade_nm
+		print target_image_size
+		print eyes_position, eyes_width
 		
 	def __del__(self):
-		print "FaceCropper destroyer triggered"
+		print "~~~~~~ FaceCropper destroyer triggered ~~~~~~"
 		
 	def get_face_images(self, frame_img):
 		self._face_images = []

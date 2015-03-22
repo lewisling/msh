@@ -7,6 +7,7 @@ import argparse
 import numpy as np
 import cv2
 import xml.etree.ElementTree as xmlreader
+import facecropper
 
 ## commandline parsing
 # TODO: write nicer description and helps...
@@ -35,21 +36,21 @@ parser.add_argument(
 	"eyepair_cascade_path",
 	help = "path to eyepair HaarCascade")
 parser.add_argument(
-	"-p", "--eye_position",
+	"-s", "--cropped_image_size",
+	help = "cropped image dimmension in pixels",
+	default = 96,
+	type = int)
+parser.add_argument(
+	"-p", "--eyes_position",
 	help = "y eyes position in cropped image, given as percentage of \
 		croped image height",
 	default = 0.33,
 	type = float)
 parser.add_argument(
-	"-w", "--eye_width",
+	"-w", "--eyes_width",
 	help = "determines percentage of eyes width in cropped image width",
 	default = 0.67,
 	type = float)
-parser.add_argument(
-	"-s", "--cropped_image_size",
-	help = "cropped image dimmension in pixels",
-	default = 96,
-	type = int)
 parser.add_argument(
 	"-t", "--output_type",
 	help = "output images type",
@@ -106,14 +107,14 @@ elif args.id_type == "person":
 else:
 	pass
 	
-face_cascade = cv2.CascadeClassifier(args.face_cascade_path)
-if face_cascade.empty():
-	print "Something went wrong with face HaarCascade, exiting..."
-	exit()
-eyepair_cascade = cv2.CascadeClassifier(args.eyepair_cascade_path)
-if face_cascade.empty():
-	print "Something went wrong with eyepair HaarCascade, exiting..."
-	exit()
+try:
+	face_cropper = facecropper.FaceCropper(
+		args.face_cascade_path, args.eyepair_cascade_path,
+		target_image_size = args.cropped_image_size,
+		eyes_position = args.eyes_position, 
+		eyes_width = args.eyes_width)
+except:
+	raise
 	
 target_image_size = (args.cropped_image_size, args.cropped_image_size)
 
@@ -146,36 +147,19 @@ except:
 ## main processing
 
 for (frame_path, person_id, left_eye, right_eye) in frames_info:
-	try:
-		frame_img = cv2.imread(frame_path, cv2.IMREAD_GRAYSCALE)
-	except:
+	frame_img = cv2.imread(frame_path, cv2.IMREAD_GRAYSCALE)
+	if frame_img == None:
 		print "Reading sequence failed"
 		break
-	faces = face_cascade.detectMultiScale(frame_img, 1.2, 6)
-	for (x, y, w, h) in faces:
-		face_area = frame_img[y:(y + h), x:(x + w)]
-		eyes = eyepair_cascade.detectMultiScale(face_area, 1.01, 5)
-		if len(eyes) == 1:
-			for (ex, ey, ew, eh) in eyes:			
-				face_size = ew / args.eye_width
-				# xy between eyes in frame_img
-				eyes_center_x = ex + ew / 2 + x
-				eyes_center_y = ey + eh / 2 + y
-				face_x = eyes_center_x - (face_size / 2)
-				face_y = eyes_center_y - (face_size * args.eye_position)
-				if (face_x >= 0 and face_y >= 0 and
-					face_x + face_size < frame_img.shape[1] and 
-					face_y + face_size < frame_img.shape[0]):
-						face_img = frame_img[
-							face_y:(face_y + face_size), 
-							face_x:(face_x + face_size)]
-						face_img = cv2.resize(face_img, target_image_size)
-						frame_name = frame_path[
-							frame_path.rfind('/') + 1:frame_path.rfind(".")]
-						cv2.imwrite(
-							args.target_path + person_id + '/' +
-							files_prefix + '-' + frame_name + 
-							'.' + args.output_type, 
-							face_img)
+	face_images = face_cropper.get_face_images(frame_img)
+	if len(face_images) == 1:
+		for face_image in face_images:
+			frame_name = frame_path[
+				frame_path.rfind('/') + 1:frame_path.rfind(".")]
+			cv2.imwrite(
+				args.target_path + person_id + '/' +
+				files_prefix + '-' + frame_name + 
+				'.' + args.output_type, 
+				face_image)
 						
 print "Exiting..."

@@ -7,6 +7,7 @@ import argparse
 import numpy as np
 import cv2
 import streamreader
+import facecropper
 
 ## commandline parsing
 # TODO: write nicer description and helps...
@@ -22,8 +23,11 @@ parser.add_argument(
 	"stream_path",
 	help = "path to the video stream")
 parser.add_argument(
-	"haar_cascade_path",
-	help = "path to XML file which contains trained HaarCascade")
+	"face_cascade_path",
+	help = "path to face HaarCascade")
+parser.add_argument(
+	"eyepair_cascade_path",
+	help = "path to eyepair HaarCascade")
 parser.add_argument(
 	"facerec_method",
 	help = "face recognition method",
@@ -73,10 +77,14 @@ elif args.stream_type == "stream":
 	stream_reader = streamreader.Stream(args.stream_path)
 else:
 	pass
-face_cascade = cv2.CascadeClassifier(args.haar_cascade_path)
-if face_cascade.empty():
-	print "Something went wrong with face HaarCascade, exiting..."
-	exit()
+
+try:
+	face_cropper = facecropper.FaceCropper(
+		args.face_cascade_path, args.eyepair_cascade_path,
+		face_cascade_sf = args.scale_factor,
+		face_cascade_mn = args.min_neighbors)
+except:
+	raise
 
 if args.reference_faces_path:
 	reference_faces_indices = []
@@ -118,13 +126,10 @@ while(True):
 	except:
 		print "End of stream"
 		break
-		
-	faces = face_cascade.detectMultiScale(
-		gray_frame, args.scale_factor, args.min_neighbors)
-	for (x, y, w, h) in faces:
-		face_img = gray_frame[y:(y + h), x:(x + w)]
-		face_img = cv2.resize(face_img, train_face_size)
-		[label, confidence] = face_recognizer.predict(np.asarray(face_img))
+	face_images = face_cropper.get_face_images(gray_frame)
+	face_locations = face_cropper.get_face_locations()
+	for face_image, (x, y, w, h) in zip(face_images, face_locations):
+		[label, confidence] = face_recognizer.predict(np.asarray(face_image))
 		cv2.rectangle(
 			stream_reader.current_frame, 
 			(x, y), (x + w, y + h), (255, 255, 255), 1)

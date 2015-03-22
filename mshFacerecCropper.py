@@ -151,7 +151,7 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 	except:
 		print "Reading sequence failed"
 		break
-	faces = face_cascade.detectMultiScale(frame_img, 1.5, 6)
+	faces = face_cascade.detectMultiScale(frame_img, 1.2, 6)
 	for (x, y, w, h) in faces:
 		face_area = frame_img[y:(y + h), x:(x + w)]
 		eyes = eyepair_cascade.detectMultiScale(face_area, 1.01, 5)
@@ -163,7 +163,6 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 				eyes_center_y = ey + eh / 2 + y
 				face_x = eyes_center_x - (face_size / 2)
 				face_y = eyes_center_y - (face_size * args.eye_position)
-				print face_x, face_y, face_size
 				if (face_x >= 0 and face_y >= 0 and
 					face_x + face_size < frame_img.shape[1] and 
 					face_y + face_size < frame_img.shape[0]):

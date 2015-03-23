@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import time
 import glob
 import cv2
 from skimage import io
@@ -8,8 +9,10 @@ from skimage import io
 class StreamReader(object):
 	
 	
-	def __init__(self, path):
+	def __init__(self, path, fps = 25.0):
 		self.path = path
+		self.fps = fps
+		self._frame_time = 0.0
 		print "~~~~~~ StreamReader created ~~~~~~"
 		print "Stream path: " + self.path
 		
@@ -17,7 +20,9 @@ class StreamReader(object):
 		print "~~~~~~ StreamReader destroyer triggered ~~~~~~"
 		
 	def read(self):
-		pass
+		while(time.time() < (self._frame_time + 1.0 / self.fps)):
+			pass
+		self._frame_time = time.time()
 		
 		
 class MultipleFiles(StreamReader):
@@ -33,6 +38,7 @@ class MultipleFiles(StreamReader):
 		super(MultipleFiles, self).__del__()
 		
 	def read(self):
+		super(MultipleFiles, self).read()
 		self.current_frame = cv2.imread(next(self._frames_paths))
 		self.gray_frame = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)
 		return self.gray_frame
@@ -50,6 +56,7 @@ class OneFile(StreamReader):
 		super(OneFile, self).__del__()
 		
 	def read(self):
+		super(OneFile, self).read()
 		self.current_frame = io.imread(self.path)
 		self.gray_frame = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)
 		return self.gray_frame
@@ -68,6 +75,7 @@ class Stream(StreamReader):
 		super(Stream, self).__del__()
 		
 	def read(self):
+		super(Stream, self).read()
 		_, self.current_frame = self._stream.read()
 		self.gray_frame = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)
 		return self.gray_frame
@@ -75,7 +83,6 @@ class Stream(StreamReader):
 if __name__ == "__main__":
 	import sys
 	import argparse
-	import time
 	
 	def main():
 		## commandline parsing
@@ -110,11 +117,12 @@ if __name__ == "__main__":
 		while(True):
 			begin_time = time.time()
 			
-			try:
-				stream_reader.read()
-			except:
-				print "End of stream"
-				break
+			#~ try:
+				#~ stream_reader.read()
+			#~ except:
+				#~ print "End of stream"
+				#~ break
+			stream_reader.read()
 			
 			if args.on_screen_info:
 				cv2.putText(
@@ -124,11 +132,11 @@ if __name__ == "__main__":
 					cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
 			cv2.imshow("mlnSpyHole - main window", stream_reader.current_frame)
 			
-			frame_time = time.time() - begin_time
-			
 			if cv2.waitKey(1) & 0xFF == ord('q'):
 				cv2.destroyAllWindows()
 				break
+				
+			frame_time = time.time() - begin_time
 				
 				
 		print "Exiting..."

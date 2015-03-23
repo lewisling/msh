@@ -64,6 +64,17 @@ parser.add_argument(
 		bigger means less accurate",
 	default = sys.float_info.max,
 	type = float)
+parser.add_argument(
+	"-p", "--eyes_position",
+	help = "y eyes position in cropped image, given as percentage of \
+		croped image height",
+	default = 0.33,
+	type = float)
+parser.add_argument(
+	"-w", "--eyes_width",
+	help = "determines percentage of eyes width in cropped image width",
+	default = 0.67,
+	type = float)
 args = parser.parse_args()
 
 
@@ -82,7 +93,9 @@ try:
 	face_cropper = facecropper.FaceCropper(
 		args.face_cascade_path, args.eyepair_cascade_path,
 		face_cascade_sf = args.scale_factor,
-		face_cascade_mn = args.min_neighbors)
+		face_cascade_mn = args.min_neighbors,
+		eyes_position = args.eyes_position, 
+		eyes_width = args.eyes_width)
 except:
 	raise
 

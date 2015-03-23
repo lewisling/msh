@@ -12,7 +12,8 @@ class FaceCropper(object):
 			face_cascade_sf = 1.2, eyepair_cascade_sf = 1.01,
 			face_cascade_mn = 6, eyepair_cascade_nm = 5,
 			target_image_size = 96,
-			eyes_position = 0.33, eyes_width = 0.67):
+			eyes_position = 0.33, eyes_width = 0.67,
+			histogram_equalization = False):
 		self.face_cascade_sf = face_cascade_sf
 		self.face_cascade_mn = face_cascade_mn
 		self.eyepair_cascade_sf = eyepair_cascade_sf
@@ -20,6 +21,7 @@ class FaceCropper(object):
 		self.target_image_size = (target_image_size, target_image_size)
 		self.eyes_position = eyes_position
 		self.eyes_width = eyes_width
+		self.histogram_equalization = histogram_equalization
 		self._face_images = []
 		self._face_locations = []
 		
@@ -69,6 +71,8 @@ class FaceCropper(object):
 								face_x:(face_x + face_size)]
 							face_img = cv2.resize(
 								face_img, self.target_image_size)
+							if self.histogram_equalization:
+								face_img = cv2.equalizeHist(face_img)
 							self._face_images.append(face_img)
 							self._face_locations.append([
 								int(face_x), int(face_y), 
@@ -135,6 +139,10 @@ if __name__ == "__main__":
 		help = "determines percentage of eyes width in cropped image width",
 		default = 0.67,
 		type = float)
+	parser.add_argument(
+		"-he", "--histogram_equalization",
+		help = "enable histogram equalization in processing",
+		action = "store_true")
 	args = parser.parse_args()
 
 
@@ -146,7 +154,8 @@ if __name__ == "__main__":
 			args.face_cascade_sf, args.eyepair_cascade_sf,
 			args.face_cascade_mn, args.eyepair_cascade_mn,
 			args.cropped_image_size,
-			args.eyes_position, args.eyes_width)
+			args.eyes_position, args.eyes_width,
+			args.histogram_equalization)
 	except:
 		raise
 		

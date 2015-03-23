@@ -60,6 +60,10 @@ parser.add_argument(
 parser.add_argument(
 	"-pf", "--prefix",
 	help = "prefix added to output files")
+parser.add_argument(
+	"-he", "--histogram_equalization",
+	help = "enable histogram equalization of output images",
+	action = "store_true")
 args = parser.parse_args()
 
 
@@ -115,7 +119,8 @@ try:
 		args.face_cascade_path, args.eyepair_cascade_path,
 		target_image_size = args.cropped_image_size,
 		eyes_position = args.eyes_position, 
-		eyes_width = args.eyes_width)
+		eyes_width = args.eyes_width,
+		histogram_equalization = args.histogram_equalization)
 except:
 	raise
 	

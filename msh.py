@@ -75,6 +75,10 @@ parser.add_argument(
 	help = "determines percentage of eyes width in cropped image width",
 	default = 0.67,
 	type = float)
+parser.add_argument(
+	"-he", "--histogram_equalization",
+	help = "enable histogram equalization in processing",
+	action = "store_true")
 args = parser.parse_args()
 
 
@@ -95,7 +99,8 @@ try:
 		face_cascade_sf = args.scale_factor,
 		face_cascade_mn = args.min_neighbors,
 		eyes_position = args.eyes_position, 
-		eyes_width = args.eyes_width)
+		eyes_width = args.eyes_width,
+		histogram_equalization = args.histogram_equalization)
 except:
 	raise
 

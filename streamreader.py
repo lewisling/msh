@@ -33,7 +33,7 @@ class MultipleFiles(StreamReader):
 		
 	def read(self):
 		self.current_frame = cv2.imread(next(self._frames_paths))
-		self.gray_frame = cv2.cvtColor(self.current_frame, cv2.COLOR_RGB2GRAY)
+		self.gray_frame = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)
 		return self.gray_frame
 
 		

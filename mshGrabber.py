@@ -70,6 +70,9 @@ if not os.path.exists(args.target_path):
 
 person_id = str(args.identifier).rjust(4, '0')
 
+grabbing_active = False
+
+
 ## main loop with frame grabbing
 
 frame_time = sys.float_info.max
@@ -83,23 +86,41 @@ while(True):
 		break
 		
 	date = datetime.datetime.now()
-	cv2.imwrite(
-		args.target_path + 
-		person_id + 
-		date.strftime("-%Y_%m_%d-%H_%M_%S_%f") + ".jpg", 
-		stream_reader.current_frame)
+	if grabbing_active:
+		cv2.imwrite(
+			args.target_path + 
+			person_id + 
+			date.strftime("-%Y_%m_%d-%H_%M_%S_%f") + ".jpg", 
+			stream_reader.current_frame)
 	
 	if args.on_screen_info:
+		if grabbing_active:
+			cv2.putText(
+				stream_reader.current_frame, 
+				"RECORDING ACTIVE", 
+				(0, 12), 
+				cv2.FONT_HERSHEY_PLAIN, 1.0, (128, 128, 128), 2)
+		else:
+			cv2.putText(
+				stream_reader.current_frame, 
+				"RECORDING NOT ACTIVE", 
+				(0, 12), 
+				cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
 		cv2.putText(
 			stream_reader.current_frame, 
 			"FPS: " + str(round(1 / frame_time, 1)), 
-			(0, 12), 
+			(0, 25), 
 			cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
 	cv2.imshow("mlnSpyHole - main window", stream_reader.current_frame)
 	
-	if cv2.waitKey(1) & 0xFF == ord('q'):
+	pressed_key = cv2.waitKey(1) & 0xFF
+	if pressed_key == ord('q'):
 		cv2.destroyAllWindows()
 		break
+	elif pressed_key == ord('r'):
+		grabbing_active = not grabbing_active
+	else:
+		pass
 		
 	frame_time = time.time() - begin_time
 			

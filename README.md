@@ -12,8 +12,10 @@ IP cameras.
 Project also includes tools for training face recognizer 
 and perform various efficiency tests:
 
-mshBenchmark - performs various efficiency tests
+mshBenchmark - performs various efficiency tests of used methods and algorithms
 
-mshFacerecTrainer - trains face recognizer. Results are written to XML.
+mshTrainer - trains face recognizer. Results are written to XML.
 
-mshFacerecCropper - crop faces from given sequence
+mshCropper - crop faces from given sequence
+
+mshGrabber - grabes frames from given stream and saves them in a specified dir

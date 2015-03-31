@@ -94,7 +94,7 @@ else:
 		root = xmlwriter.Element("dataset")
 		root.set("name", target_name)
 		xmltree = xmlwriter.ElementTree(root)
-		#~ xmltree.write(xml_path, pretty_print = True, xml_declaration = True)
+dataset_root = xmltree.getroot()
 
 
 ## main loop with frame grabbing
@@ -111,12 +111,14 @@ while(True):
 		
 	date = datetime.datetime.now()
 	if grabbing_active:
+		frame_name = person_id + date.strftime("-%Y_%m_%d-%H_%M_%S_%f")
+		frame_entry = xmlwriter.SubElement(dataset_root, "frame")
+		frame_entry.set("number", frame_name)
+		person_entry = xmlwriter.SubElement(frame_entry, "person")
+		person_entry.set("id", str(person_id))
 		cv2.imwrite(
-			args.target_path + 
-			person_id + 
-			date.strftime("-%Y_%m_%d-%H_%M_%S_%f") + ".jpg", 
+			args.target_path + frame_name + ".jpg", 
 			stream_reader.current_frame)
-		# TODO: saving to xml
 	
 	if args.on_screen_info:
 		if grabbing_active:
@@ -148,5 +150,11 @@ while(True):
 		pass
 		
 	frame_time = time.time() - begin_time
-			
-print "Exiting..."
+
+try:	
+	xmltree.write(xml_path, pretty_print = True, xml_declaration = True)
+except:
+	print "ERROR: Failed to write " + \
+		xml_path + " file with frames description"
+finally:
+	print "Exiting..."

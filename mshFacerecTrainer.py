@@ -26,10 +26,6 @@ parser.add_argument(
 	"method",
 	help = "choose face recognition method for which training is performed",
 	choices = ["eigenfaces", "fisherfaces", "lbph"])
-parser.add_argument(
-	"-hc", "--haar_cascade_path",
-	help = "if given, cropped face images are preprocesed by face detector \
-		(some kind of normalization)")
 args = parser.parse_args()
 
 
@@ -38,14 +34,6 @@ args = parser.parse_args()
 train_faces_images = []
 train_faces_indices = []
 cropped_faces_dir = args.cropped_faces_dir
-if args.haar_cascade_path:
-	face_cascade = cv2.CascadeClassifier(args.haar_cascade_path)
-	if face_cascade.empty():
-		print "Something went wrong with Haar Cascade, exiting..."
-		exit()
-		
-# temporary!
-train_face_size = (96, 96)
 
 
 ## fixing cropped_faces_dir  
@@ -65,13 +53,6 @@ for root, dirs, names in os.walk(cropped_faces_dir):
 			if fnmatch.fnmatch(name, "*.pgm"):
 				path = os.path.join(root, name)
 				face = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
-				if args.haar_cascade_path:
-					haar_faces = face_cascade.detectMultiScale(face, 1.01, 6)
-					if len(haar_faces) != 1:
-						continue
-					[x, y, w, h] = haar_faces[0]
-					face = face[y:(y + h), x:(x + w)]
-					face = cv2.resize(face, train_face_size)
 				train_faces_images.append(np.asarray(face, dtype = np.uint8))
 				index = root[root.rfind('/') + 1:]
 				train_faces_indices.append(index)

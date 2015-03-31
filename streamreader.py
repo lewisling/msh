@@ -58,7 +58,10 @@ class OneFile(StreamReader):
 	def read(self):
 		super(OneFile, self).read()
 		self.current_frame = io.imread(self.path)
-		self.gray_frame = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)
+		self.current_frame = cv2.cvtColor(
+			self.current_frame, cv2.COLOR_BGR2RGB)
+		self.gray_frame = cv2.cvtColor(
+			self.current_frame, cv2.COLOR_RGB2GRAY)
 		return self.gray_frame
 		
 		

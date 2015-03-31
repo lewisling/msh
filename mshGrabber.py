@@ -6,6 +6,7 @@ import time
 import datetime
 import argparse
 import cv2
+import lxml.etree as xmlwriter
 import streamreader
 
 ## commandline parsing
@@ -70,7 +71,30 @@ if not os.path.exists(args.target_path):
 
 person_id = str(args.identifier).rjust(4, '0')
 
+target_path = args.target_path[:len(args.target_path) - 1]
+target_name = target_path[target_path.rfind("/") + 1:]
+xml_path = args.target_path + target_name + ".xml"
+
 grabbing_active = False
+
+# checking if xml file in target directory exists and trying to create it,
+# then, if creating was succesfull, formating basic xml, saving it and exit
+try:
+	open(xml_path, 'a').close()
+except IOError:
+	print "ERROR: Can't touch XML file in target directory"
+	exit()
+else:
+	try:
+		xmltree = xmlwriter.parse(xml_path)
+	except xmlwriter.XMLSyntaxError:
+		# when document is empty or something its content is deleted
+		# and basic xml document is prepared
+		open(xml_path, 'w').close()
+		root = xmlwriter.Element("dataset")
+		root.set("name", target_name)
+		xmltree = xmlwriter.ElementTree(root)
+		#~ xmltree.write(xml_path, pretty_print = True, xml_declaration = True)
 
 
 ## main loop with frame grabbing
@@ -92,6 +116,7 @@ while(True):
 			person_id + 
 			date.strftime("-%Y_%m_%d-%H_%M_%S_%f") + ".jpg", 
 			stream_reader.current_frame)
+		# TODO: saving to xml
 	
 	if args.on_screen_info:
 		if grabbing_active:

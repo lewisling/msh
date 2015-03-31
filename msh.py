@@ -79,17 +79,22 @@ parser.add_argument(
 	"-he", "--histogram_equalization",
 	help = "enable histogram equalization in processing",
 	action = "store_true")
+parser.add_argument(
+	"-f", "--max_fps",
+	help = "allows to set fps limiter",
+	default = 25.0,
+	type = float)
 args = parser.parse_args()
 
 
 ## initializing variables and objects
 
 if args.stream_type == "onefile":
-	stream_reader = streamreader.OneFile(args.stream_path)
+	stream_reader = streamreader.OneFile(args.stream_path, args.max_fps)
 elif args.stream_type == "multiplefiles":
 	stream_reader = streamreader.MultipleFiles(args.stream_path)
 elif args.stream_type == "stream":
-	stream_reader = streamreader.Stream(args.stream_path)
+	stream_reader = streamreader.Stream(args.stream_path, args.max_fps)
 else:
 	pass
 
@@ -141,6 +146,9 @@ while(True):
 	
 	try:
 		gray_frame = stream_reader.read()
+	except IOError:
+		print "Something went wrong with stream"
+		break
 	except:
 		print "End of stream"
 		break

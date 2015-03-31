@@ -6,8 +6,8 @@ import time
 import argparse
 import numpy as np
 import cv2
-import modules.streamreader
-import modules.facecropper
+import modules.streamreader as streamreader
+import modules.facecropper as facecropper
 
 ## commandline parsing
 # TODO: write nicer description and helps...

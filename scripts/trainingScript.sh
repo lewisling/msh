@@ -17,7 +17,6 @@ for path in $cropped_faces_dir* ; do
 					python $script_path$script_name \
 					$path/$sequence $method \
 					-hc ~/code/python-projects/tmp/haarcascade_frontalface_default.xml >> $results_file
-					
 				done
 			fi
 		done

@@ -9,9 +9,9 @@ from skimage import io
 class StreamReader(object):
 	
 	
-	def __init__(self, path, fps = 25.0):
+	def __init__(self, path, max_fps = float('inf')):
 		self.path = path
-		self.fps = fps
+		self.fps = max_fps
 		self._frame_time = 0.0
 		print "~~~~~~ StreamReader created ~~~~~~"
 		print "Stream path: " + self.path
@@ -47,8 +47,8 @@ class MultipleFiles(StreamReader):
 class OneFile(StreamReader):
 	
 
-	def __init__(self, path):
-		super(OneFile, self).__init__(path)
+	def __init__(self, path, max_fps = 25.0):
+		super(OneFile, self).__init__(path, max_fps)
 		print "Stream type: onefile"
 		print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		
@@ -68,8 +68,8 @@ class OneFile(StreamReader):
 class Stream(StreamReader):
 	
 
-	def __init__(self, path):
-		super(Stream, self).__init__(path)
+	def __init__(self, path, max_fps = 25.0):
+		super(Stream, self).__init__(path, max_fps)
 		print "Stream type: stream"
 		print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		self._stream = cv2.VideoCapture(self.path)
@@ -79,9 +79,12 @@ class Stream(StreamReader):
 		
 	def read(self):
 		super(Stream, self).read()
-		_, self.current_frame = self._stream.read()
+		rc, self.current_frame = self._stream.read()
+		if rc == False:
+			raise IOError("Failed to read stream")
 		self.gray_frame = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)
 		return self.gray_frame
+
 
 if __name__ == "__main__":
 	import sys
@@ -104,28 +107,36 @@ if __name__ == "__main__":
 			"-o", "--on_screen_info",
 			help = "enable on-screen informations",
 			action = "store_true")
+		parser.add_argument(
+			"-f", "--max_fps",
+			help = "allows to set fps limiter",
+			default = 25.0,
+			type = float)
 		args = parser.parse_args()
 		
 		
 		if args.stream_type == "onefile":
-			stream_reader = OneFile(args.stream_path)
+			stream_reader = OneFile(args.stream_path, args.max_fps)
 		elif args.stream_type == "multiplefiles":
 			stream_reader = MultipleFiles(args.stream_path)
 		elif args.stream_type == "stream":
-			stream_reader = Stream(args.stream_path)
+			stream_reader = Stream(args.stream_path, args.max_fps)
 		else:
 			pass
+			
 			
 		frame_time = sys.float_info.max
 		while(True):
 			begin_time = time.time()
 			
-			#~ try:
-				#~ stream_reader.read()
-			#~ except:
-				#~ print "End of stream"
-				#~ break
-			stream_reader.read()
+			try:
+				stream_reader.read()
+			except IOError:
+				print "Something went wrong with stream"
+				break
+			except:
+				print "End of stream"
+				break
 			
 			if args.on_screen_info:
 				cv2.putText(
@@ -140,8 +151,7 @@ if __name__ == "__main__":
 				break
 				
 			frame_time = time.time() - begin_time
-				
-				
+					
 		print "Exiting..."
 		
 		

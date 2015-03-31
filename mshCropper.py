@@ -8,7 +8,7 @@ import argparse
 import numpy as np
 import cv2
 import xml.etree.ElementTree as xmlreader
-import facecropper
+import modules.facecropper
 
 ## commandline parsing
 # TODO: write nicer description and helps...

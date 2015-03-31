@@ -7,7 +7,7 @@ import datetime
 import argparse
 import cv2
 import lxml.etree as xmlwriter
-import streamreader
+import modules.streamreader
 
 ## commandline parsing
 # TODO: write nicer description and helps...

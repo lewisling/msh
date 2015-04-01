@@ -85,8 +85,9 @@ except IOError:
 	print "ERROR: Can't touch XML file in target directory"
 	exit()
 else:
+	parser = xmlwriter.XMLParser(remove_blank_text = True)
 	try:
-		xmltree = xmlwriter.parse(xml_path)
+		xmltree = xmlwriter.parse(xml_path, parser)
 	except xmlwriter.XMLSyntaxError:
 		# when document is empty or something its content is deleted
 		# and basic xml document is prepared

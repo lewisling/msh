@@ -1,17 +1,78 @@
 #!/usr/bin/env python
 
-from sys import argv
+import sys
+import time
+import argparse
 import numpy
 import cv2
 import xml.etree.ElementTree as ET
-import time
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+## commandline parsing
+# TODO: write nicer description and helps...
+
+parser = argparse.ArgumentParser(
+	description = '''Small utility to perform various tests against
+		given test sequence and XML file descibing its frames.''')
+parser.add_argument(
+	"stream_path",
+	help = "path to a video stream (accept only multiplefiles-type stream!)")
+parser.add_argument(
+	"xml_file",
+	help = "path to xml file with informations about given video sequence")
+parser.add_argument(
+	"face_cascade_path",
+	help = "path to face HaarCascade")
+parser.add_argument(
+	"eyepair_cascade_path",
+	help = "path to eyepair HaarCascade")
+parser.add_argument(
+	"facerec_method",
+	help = "face recognition method",
+	choices = ["eigenfaces", "fisherfaces", "lbph"])
+parser.add_argument(
+	"facerec_model_path",
+	help = "path to XML file with model state for chosen \
+		face recognition method")
+parser.add_argument(
+	"scale_factor",
+	help = "one of the face detection algorithm parameters",
+	type = float)
+parser.add_argument(
+	"min_neighbors",
+	help = "one of the face detection algorithm parameters",
+	type = int)
+parser.add_argument(
+	"eyes_position",
+	help = "y eyes position in cropped image, given as percentage of \
+		cropped image height",
+	type = float)
+parser.add_argument(
+	"eyes_width",
+	help = "determines percentage of eyes width in cropped image width",
+	type = float)
+parser.add_argument(
+	"-he", "--histogram_equalization",
+	help = "enable histogram equalization in processing",
+	action = "store_true")
+parser.add_argument(
+	"-ft", "--facerec_threshold",
+	help = "face recognition threshold parameter",
+	default = sys.float_info.max,
+	type = float)
+parser.add_argument(
+	"-s", "--cropped_image_size",
+	help = "cropped image dimmension in pixels",
+	default = 96,
+	type = int)
+args = parser.parse_args()
+
+exit()
 
 scale_factor = float(argv[1])
 min_neighbors = int(argv[2])
 xml_file = argv[3]
 sequence_path = argv[4]
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

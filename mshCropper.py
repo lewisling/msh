@@ -22,7 +22,7 @@ parser.add_argument(
 parser.add_argument(
 	"target_path",
 	help = "path to a directory where cropped faces will be written in \
-		different subdirectories to each id")
+		different subdirectories for each id")
 parser.add_argument(
 	"id_type",
 	help = "choose sequence type",
@@ -44,7 +44,7 @@ parser.add_argument(
 parser.add_argument(
 	"-p", "--eyes_position",
 	help = "y eyes position in cropped image, given as percentage of \
-		croped image height",
+		cropped image height",
 	default = 0.33,
 	type = float)
 parser.add_argument(

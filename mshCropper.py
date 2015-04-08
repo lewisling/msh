@@ -119,7 +119,7 @@ except:
 
 ## main processing
 
-for (frame_path, person_id, left_eye, right_eye) in frames_info:
+for (frame_path, person_id) in frames_info:
 	frame_img = cv2.imread(frame_path, cv2.IMREAD_GRAYSCALE)
 	if frame_img == None:
 		print "Reading sequence failed"

@@ -57,13 +57,16 @@ class FaceCropper(object):
 	def get_face_images(self, frame_img):
 		self._face_images = []
 		self._face_locations = []
+		self._facecascade_results = []
+		self._eyepaircascade_results = []
 		
-		faces = self._face_cascade.detectMultiScale(
+		self._facecascade_results = self._face_cascade.detectMultiScale(
 			frame_img, self.face_cascade_sf, self.face_cascade_mn)
-		for (x, y, w, h) in faces:
+		for (x, y, w, h) in self._facecascade_results:
 			face_area = frame_img[y:(y + h), x:(x + w)]
 			eyes = self._eyepair_cascade.detectMultiScale(
 				face_area, self.eyepair_cascade_sf, self.eyepair_cascade_nm)
+			self._eyepaircascade_results.append(eyes)
 			if len(eyes) == 1:
 				for (ex, ey, ew, eh) in eyes:			
 					face_size = ew / self.eyes_width
@@ -88,6 +91,12 @@ class FaceCropper(object):
 								int(face_size), int(face_size)])
 							
 		return self._face_images
+		
+	def get_facecascade_results(self):
+		return self._facecascade_results
+		
+	def get_eyepaircascade_results(self):
+		return self._eyepaircascade_results
 							
 	def get_face_locations(self):
 		return self._face_locations

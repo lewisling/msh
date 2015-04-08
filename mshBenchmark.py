@@ -88,8 +88,7 @@ n_incorrect_faces = 0
 n_correct_eyepairs = 0
 n_incorrect_eyepairs = 0
 
-min_fps = 0.0
-avg_fps = 0.0
+min_fps = sys.float_info.max
 max_fps = 0.0
 
 n_correct_recognitions = 0
@@ -175,6 +174,8 @@ for frame in dataset:
 begin_time = time.time()
 
 for (frame_path, person_id, left_eye, right_eye) in frames_info:
+	begin_frame_time = time.time()
+	
 	frame_img = cv2.imread(frame_path, cv2.IMREAD_GRAYSCALE)
 	if frame_img == None:
 		print "Reading sequence failed"
@@ -184,7 +185,7 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 	# for every bounding-box in frame...
 	for (x, y, w, h) in faces:
 		# check if there is a person...
-		if(person_id == None):
+		if person_id == None:
 			# if not, then bounding-box is incorrect...
 			n_incorrect_faces += 1
 		else:
@@ -213,21 +214,31 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 						n_correct_eyepairs += 1
 				else:
 					n_incorrect_eyepairs += 1
-	if(person_id != None):	
+	if person_id != None:	
 		n_total_faces += 1
+		
+	frame_time = time.time() - begin_frame_time
+	fps = 1 / frame_time
+	if fps < min_fps:
+		min_fps = fps
+	if fps > max_fps:
+		max_fps = fps
 
 finish_time = time.time()
 
 
 ## printing benchmark results
 
+avg_fps = len(frames_info) / (finish_time - begin_time)
+
 print args.face_cascade_sf, \
 	args.face_cascade_mn, \
-	(n_correct_faces + n_incorrect_faces), \
+	len(frames_info), \
+	n_total_faces, \
 	n_correct_faces, \
 	n_incorrect_faces, \
-	n_total_faces, \
 	n_correct_eyepairs, \
 	n_incorrect_eyepairs, \
-	len(frames_info), \
-	round(finish_time - begin_time, 2)
+	round(min_fps, 2), \
+	round(max_fps, 2), \
+	round(avg_fps, 2)

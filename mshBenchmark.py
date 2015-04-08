@@ -3,7 +3,7 @@
 import sys
 import time
 import argparse
-import numpy
+import numpy as np
 import cv2
 import xml.etree.ElementTree as xmlreader
 import modules.facecropper as facecropper
@@ -94,9 +94,8 @@ max_fps = 0.0
 n_correct_recognitions = 0
 n_incorrect_recognitions = 0
 min_confidence = 0.0
-avg_confidence = 0.0
-max_confidence = 0.0
-min_incorrect_confidence = 0.0
+max_confidence = sys.float_info.max
+max_incorrect_confidence = sys.float_info.max
 
 
 ## initializing objects
@@ -180,7 +179,7 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 	if frame_img == None:
 		print "Reading sequence failed"
 		break
-	face_cropper.get_face_images(frame_img)
+	face_images = face_cropper.get_face_images(frame_img)
 	faces = face_cropper.get_facecascade_results()
 	# for every bounding-box in frame...
 	for (x, y, w, h) in faces:
@@ -214,6 +213,21 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 						n_correct_eyepairs += 1
 				else:
 					n_incorrect_eyepairs += 1
+	# face recognition
+	if args.facerec_method != "none":
+		for face_img in face_images:
+			[label, confidence] = face_recognizer.predict(np.asarray(face_img))
+			if label == int(person_id):
+				n_correct_recognitions += 1
+			else:
+				n_incorrect_recognitions += 1
+				if confidence < max_incorrect_confidence:
+					max_incorrect_confidence = confidence
+			if confidence > min_confidence:
+				min_confidence = confidence
+			if confidence < max_confidence:
+				max_confidence = confidence
+			
 	if person_id != None:	
 		n_total_faces += 1
 		
@@ -239,6 +253,11 @@ print args.face_cascade_sf, \
 	n_incorrect_faces, \
 	n_correct_eyepairs, \
 	n_incorrect_eyepairs, \
+	n_correct_recognitions, \
+	n_incorrect_recognitions, \
+	round(min_confidence, 2), \
+	round(max_confidence, 2), \
+	round(max_incorrect_confidence, 2), \
 	round(min_fps, 2), \
 	round(max_fps, 2), \
 	round(avg_fps, 2)

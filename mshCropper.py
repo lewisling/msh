@@ -146,8 +146,7 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 				frame_path.rfind('/') + 1:frame_path.rfind(".")]
 			cv2.imwrite(
 				args.target_path + person_id + '/' +
-				files_prefix + '-' + frame_name + 
-				'.' + args.output_type, 
+				files_prefix + '-' + frame_name + ".pgm"
 				face_image)
 
 finish_time = time.time()						

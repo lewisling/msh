@@ -5,7 +5,8 @@ import time
 import argparse
 import numpy
 import cv2
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as xmlreader
+import modules.facecropper as facecropper
 
 ## commandline parsing
 # TODO: write nicer description and helps...
@@ -74,86 +75,143 @@ parser.add_argument(
 	type = int)
 args = parser.parse_args()
 
-exit()
 
-scale_factor = float(argv[1])
-min_neighbors = int(argv[2])
-xml_file = argv[3]
-sequence_path = argv[4]
+## initializing variables
 
+if args.stream_path[len(args.stream_path) - 1] != '/':
+	args.stream_path += '/'
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-
-
-## initializing variables and objects
-
-n_frames = 0
 n_total_faces = 0
 n_correct_faces = 0
 n_incorrect_faces = 0
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+n_total_eyepairs = 0
+n_correct_eyepairs = 0
+n_incorrect_eyepairs = 0
 
-start_time = time.time()
+min_fps = 0.0
+avg_fps = 0.0
+max_fps = 0.0
 
-tree = ET.parse(xml_file)
-dataset = tree.getroot()
+n_correct_recognitions = 0
+n_incorrect_recognitions = 0
+min_confidence = 0.0
+avg_confidence = 0.0
+max_confidence = 0.0
+min_incorrect_confidence = 0.0
 
-for frame in dataset:
-	frame_img = cv2.imread(sequence_path + frame.get('number') + ".jpg")
+
+## initializing objects
+
+try:
+	face_cropper = facecropper.FaceCropper(
+		args.face_cascade_path, args.eyepair_cascade_path,
+		args.face_cascade_sf, args.eyepair_cascade_sf,
+		args.face_cascade_mn, args.eyepair_cascade_mn,
+		args.cropped_image_size,
+		args.eyes_position, args.eyes_width,
+		args.histogram_equalization,
+		False)
+except:
+	raise
 	
-	frame_gray = cv2.cvtColor(frame_img, cv2.COLOR_RGB2GRAY)
-	faces = \
-		face_cascade.detectMultiScale(frame_gray, scale_factor, min_neighbors)
+if args.facerec_method != "none":
+	if args.facerec_method == "eigenfaces":
+		face_recognizer = cv2.createEigenFaceRecognizer(
+			0, args.facerec_threshold)
+	elif args.facerec_method == "fisherfaces":
+		face_recognizer = cv2.createFisherFaceRecognizer(
+			0, args.facerec_threshold)
+	elif args.facerec_method == "lbph":
+		face_recognizer = cv2.createLBPHFaceRecognizer(
+			1, 8, 8, 8, args.facerec_threshold)
+	else:
+		pass
+	try:
+		face_recognizer.load(args.facerec_model_path)
+	except:
+		print "Something went wrong face recognizer model, exiting..."
+		exit()
+else:
+	pass
+	
+# frames_info[frame_path, person_id, left_eye, right_eye]
+# It is assumed that frame contains at most one face.
+# In case of groundtruth file created by mshGrabber 
+# eye coords are filled with "-1".
+frames_info = []
+try:
+	xmltree = xmlreader.parse(args.groundtruth_xml)
+except:
+	print "groundtruth xml cannot be opened"
+	exit()
+dataset = xmltree.getroot()
+for frame in dataset:
+	eye_coord = []
+	frame_name = frame.get("number")
+	# frame with a person
+	if len(frame) == 1:
+		for person in frame:
+			person_id = person.get("id")
+			# groundtruth from chokepoint
+			if len(person) == 2:
+				for eyes in person:
+					eye_coord.append((int(eyes.get('x')), int(eyes.get('y'))))
+			# "groundtruth" created by mshGrabber
+			else:
+				eye_coord.append((-1, -1))
+				eye_coord.append((-1, -1))
+	# frame without or with more than one person
+	else:
+		person_id = None
+		eye_coord.append((-1, -1))
+		eye_coord.append((-1, -1))
+	frames_info.append([
+		args.stream_path + frame_name + ".jpg", 
+		person_id, eye_coord[0], eye_coord[1]])
 
-	# dla kazdego wykrytego bounding-boxa w danej ramce...
+
+## benchmark
+
+begin_time = time.time()
+
+for (frame_path, person_id, left_eye, right_eye) in frames_info:
+	frame_img = cv2.imread(frame_path, cv2.IMREAD_GRAYSCALE)
+	if frame_img == None:
+		print "Reading sequence failed"
+		break
+	face_cropper.get_face_images(frame_img)
+	faces = face_cropper.get_facecascade_results()
+	# for every bounding-box in frame...
 	for (x, y, w, h) in faces:
-		# sprawdzam czy w danej ramce w ogole jest rzeczywiscie jakas twarz...
-		if(len(frame) == 0):
-			# ...jesli nie to znaczy ze ten bbox jest bledny i do odrzucenia...
+		# check if there is a face...
+		if(person_id == None):
+			# if not, then bounding-box is incorrect...
 			n_incorrect_faces += 1
 		else:
-			# ...a jesli tak, sprawdzam czy ktoras 
-			# z osob ktora rzeczywiscie tam jest...
-			face_in_bbox = False
-			
-			for person in frame:
-				# ...ma swoje oczy wewnatrz wykrytego bounding-boxa
-				n_eyes_in_bbox = 0
-				
-				for eyes in person:
-					eye_x = int(eyes.get('x'))
-					eye_y = int(eyes.get('y'))
-					
-					if((eye_x >= x and eye_x <= (x + w)) and \
-						(eye_y >= y and eye_y <= (y + h))):
-						n_eyes_in_bbox += 1
-					
-				if(n_eyes_in_bbox == 2):
-					face_in_bbox = face_in_bbox ^ True
-					
-			if(face_in_bbox == True):
-				n_correct_faces += 1
+			# ...if so, then check if someone's face is surrounded 
+			# by the bounding-box and has its eyes therein	
+			if(
+				(left_eye[0] >= x and left_eye[0] <= (x + w)) and \
+				(left_eye[1] >= y and left_eye[1] <= (y + h)) and \
+				(right_eye[0] >= x and right_eye[0] <= (x + w)) and \
+				(right_eye[1] >= y and right_eye[1] <= (y + h))):
+					n_correct_faces += 1
 			else:
 				n_incorrect_faces += 1
-		
-	n_total_faces += len(frame)
-	n_frames += 1
+	if(person_id != None):	
+		n_total_faces += 1
 
-stop_time = time.time()
+finish_time = time.time()
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-xml_name = xml_file[xml_file.rfind("/") + 1:]
+## printing benchmark results
 
-print xml_name, \
-	scale_factor, \
-	min_neighbors, \
+print args.face_cascade_sf, \
+	args.face_cascade_mn, \
 	(n_correct_faces + n_incorrect_faces), \
 	n_correct_faces, \
 	n_incorrect_faces, \
 	n_total_faces, \
-	n_frames, \
-	round(stop_time - start_time, 2)
+	len(frames_info), \
+	round(finish_time - begin_time, 2)

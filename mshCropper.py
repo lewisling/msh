@@ -70,10 +70,9 @@ if not os.path.exists(args.target_path):
 		print "Can't mkdir target directories"
 		exit()
 	
-# frames_info[frame_path, person_id, left_eye, right_eye]
-# only frames which contains someone are loaded
-# it assumed that frame contains at most one face
-# in case of id_type = person eye coords are filled with "-1"
+# frames_info[frame_path, person_id]
+# Only frames which contains someone are loaded.
+# It is assumed that frame contains at most one face.
 frames_info = []
 try:
 	xmltree = xmlreader.parse(args.id_path)
@@ -86,22 +85,8 @@ for frame in dataset:
 		frame_name = frame.get("number")
 		for person in frame:
 			person_id = person.get("id")
-			# groundtruth from chokepoint
-			if len(person) == 2:
-				eye_coord = []
-				for eyes in person:
-					eye_coord.append(
-						(int(eyes.get('x')), int(eyes.get('y'))))
-				frames_info.append([
-					args.stream_path + frame_name + ".jpg", 
-					person_id, eye_coord[0], eye_coord[1]])
-			# "groundtruth" created by mshGrabber
-			elif len(person) == 0:
-				frames_info.append([
-					args.stream_path + frame_name + ".jpg", 
-					person_id, (-1, -1), (-1, -1)])
-			else:
-				pass
+			frames_info.append(
+				[args.stream_path + frame_name + ".jpg", person_id])
 
 try:
 	face_cropper = facecropper.FaceCropper(

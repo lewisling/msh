@@ -17,14 +17,30 @@ parser.add_argument(
 	"stream_path",
 	help = "path to a video stream (accept only multiplefiles-type stream!)")
 parser.add_argument(
-	"xml_file",
-	help = "path to xml file with informations about given video sequence")
+	"groundtruth_xml",
+	help = "path to xml file with groundtruth for given video sequence")
 parser.add_argument(
 	"face_cascade_path",
 	help = "path to face HaarCascade")
 parser.add_argument(
+	"face_cascade_sf",
+	help = "face detection algorithm parameter - scale_factor",
+	type = float)
+parser.add_argument(
+	"face_cascade_mn",
+	help = "face detection algorithm parameter - min_neighbors",
+	type = int)
+parser.add_argument(
 	"eyepair_cascade_path",
 	help = "path to eyepair HaarCascade")
+parser.add_argument(
+	"eyepair_cascade_sf",
+	help = "eyepair detection algorithm parameter - scale_factor",
+	type = float)
+parser.add_argument(
+	"eyepair_cascade_mn",
+	help = "eyepair detection algorithm parameter - min_neighbors",
+	type = int)
 parser.add_argument(
 	"facerec_method",
 	help = "face recognition method",
@@ -33,14 +49,6 @@ parser.add_argument(
 	"facerec_model_path",
 	help = "path to XML file with model state for chosen \
 		face recognition method")
-parser.add_argument(
-	"scale_factor",
-	help = "one of the face detection algorithm parameters",
-	type = float)
-parser.add_argument(
-	"min_neighbors",
-	help = "one of the face detection algorithm parameters",
-	type = int)
 parser.add_argument(
 	"eyes_position",
 	help = "y eyes position in cropped image, given as percentage of \
@@ -78,7 +86,8 @@ sequence_path = argv[4]
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+## initializing variables and objects
 
 n_frames = 0
 n_total_faces = 0
@@ -147,13 +156,4 @@ print xml_name, \
 	n_incorrect_faces, \
 	n_total_faces, \
 	n_frames, \
-	round(stop_time - start_time, 2)  
-
-#print "Setting for scale_factor: %s" % scale_factor
-#print "Setting for min_neighbors: %s" % min_neighbors
-#print "Detected faces: %s" % (n_correct_faces + n_incorrect_faces)
-#print "	Correct detected faces: %s" % n_correct_faces
-#print "	Incorrect detected faces: %s" % n_incorrect_faces
-#print "Real faces: %s" % n_total_faces
-#print "Processed frames: %s" % n_frames
-#print "Execution time: %s" % (stop_time - start_time)  
+	round(stop_time - start_time, 2)

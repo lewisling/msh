@@ -109,7 +109,7 @@ files_prefix = stream_name
 ## and possibly creating them if not exists
 
 try:
-	for _, person_id, _, _ in frames_info:
+	for _, person_id in frames_info:
 		if not os.path.exists(args.target_path + person_id):
 			os.mkdir(args.target_path + person_id)
 except:
@@ -131,7 +131,7 @@ for (frame_path, person_id) in frames_info:
 				frame_path.rfind('/') + 1:frame_path.rfind(".")]
 			cv2.imwrite(
 				args.target_path + person_id + '/' +
-				files_prefix + '-' + frame_name + ".pgm"
+				files_prefix + '-' + frame_name + ".pgm",
 				face_image)
 
 finish_time = time.time()						

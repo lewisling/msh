@@ -44,7 +44,7 @@ parser.add_argument(
 parser.add_argument(
 	"facerec_method",
 	help = "face recognition method",
-	choices = ["eigenfaces", "fisherfaces", "lbph"])
+	choices = ["eigenfaces", "fisherfaces", "lbph", "none"])
 parser.add_argument(
 	"facerec_model_path",
 	help = "path to XML file with model state for chosen \

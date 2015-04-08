@@ -85,7 +85,6 @@ n_total_faces = 0
 n_correct_faces = 0
 n_incorrect_faces = 0
 
-n_total_eyepairs = 0
 n_correct_eyepairs = 0
 n_incorrect_eyepairs = 0
 
@@ -184,7 +183,7 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 	faces = face_cropper.get_facecascade_results()
 	# for every bounding-box in frame...
 	for (x, y, w, h) in faces:
-		# check if there is a face...
+		# check if there is a person...
 		if(person_id == None):
 			# if not, then bounding-box is incorrect...
 			n_incorrect_faces += 1
@@ -199,6 +198,21 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 					n_correct_faces += 1
 			else:
 				n_incorrect_faces += 1
+	eyepairs = face_cropper.get_eyepaircascade_results()
+	# the same way as above but for eyepairs
+	for eyepair in eyepairs:
+		for (ex, ey, ew, eh) in eyepair:
+			if(person_id == None):
+				n_incorrect_eyepairs += 1
+			else:
+				if(
+					(left_eye[0] >= ex and left_eye[0] <= (ex + ew)) and \
+					(left_eye[1] >= ey and left_eye[1] <= (ey + eh)) and \
+					(right_eye[0] >= ex and right_eye[0] <= (ex + ew)) and \
+					(right_eye[1] >= ey and right_eye[1] <= (ey + eh))):
+						n_correct_eyepairs += 1
+				else:
+					n_incorrect_eyepairs += 1
 	if(person_id != None):	
 		n_total_faces += 1
 
@@ -213,5 +227,7 @@ print args.face_cascade_sf, \
 	n_correct_faces, \
 	n_incorrect_faces, \
 	n_total_faces, \
+	n_correct_eyepairs, \
+	n_incorrect_eyepairs, \
 	len(frames_info), \
 	round(finish_time - begin_time, 2)

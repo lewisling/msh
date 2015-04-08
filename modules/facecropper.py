@@ -13,7 +13,8 @@ class FaceCropper(object):
 			face_cascade_mn = 6, eyepair_cascade_nm = 5,
 			target_image_size = 96,
 			eyes_position = 0.33, eyes_width = 0.67,
-			histogram_equalization = False):
+			histogram_equalization = False,
+			debug = True):
 		self.face_cascade_sf = face_cascade_sf
 		self.face_cascade_mn = face_cascade_mn
 		self.eyepair_cascade_sf = eyepair_cascade_sf
@@ -22,6 +23,7 @@ class FaceCropper(object):
 		self.eyes_position = eyes_position
 		self.eyes_width = eyes_width
 		self.histogram_equalization = histogram_equalization
+		self.debug = debug
 		self._face_images = []
 		self._face_locations = []
 		
@@ -32,18 +34,25 @@ class FaceCropper(object):
 		if self._eyepair_cascade.empty():
 			raise IOError("Eyepair cascade loading failed")
 			
-		# TODO: printing detailed description about created FaceCropper
-		print "~~~~~~ FaceCropper created ~~~~~~"
-		print face_cascade_path
-		print eyepair_cascade_path
-		print face_cascade_sf, face_cascade_mn
-		print eyepair_cascade_sf, eyepair_cascade_nm
-		print target_image_size
-		print eyes_position, eyes_width
-		print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+		if self.debug:
+			print "~~~~~~ FaceCropper created ~~~~~~"
+			print "Face cascade: " + str(face_cascade_path)
+			print "scale factor: " + str(face_cascade_sf), 
+			print "\b, min neighbors: " + str(face_cascade_mn) + '\n'
+			print "Eyepair cascade: " + str(eyepair_cascade_path)
+			print "scale factor: " + str(eyepair_cascade_sf),
+			print "\b, min neighbors: " + str(eyepair_cascade_nm) + '\n'
+			print "Eyes y-position: " + str(self.eyes_position), 
+			print "\b, eyes width: " + str(self.eyes_width)
+			print "Cropped image dimensions:",
+			print self.target_image_size
+			print "Histogram equalization:",
+			print self.histogram_equalization
+			print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
 		
 	def __del__(self):
-		print "~~~~~~ FaceCropper destroyer triggered ~~~~~~"
+		if self.debug:
+			print "~~~~~~ FaceCropper destroyer triggered ~~~~~~"
 		
 	def get_face_images(self, frame_img):
 		self._face_images = []

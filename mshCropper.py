@@ -65,7 +65,7 @@ if args.target_path[len(args.target_path) - 1] != '/':
 	args.target_path += '/'
 if not os.path.exists(args.target_path):
 	try:
-		os.mkdir(args.target_path)
+		os.makedirs(args.target_path)
 	except:
 		print "Can't mkdir target directories"
 		exit()

@@ -128,7 +128,7 @@ if args.facerec_method != "none":
 		face_recognizer.load(args.facerec_model_path)
 	except:
 		print "Something went wrong face recognizer model, exiting..."
-		exit()
+		sys.exit(1)
 else:
 	pass
 	
@@ -141,7 +141,7 @@ try:
 	xmltree = xmlreader.parse(args.groundtruth_xml)
 except:
 	print "groundtruth xml cannot be opened"
-	exit()
+	sys.exit(1)
 dataset = xmltree.getroot()
 for frame in dataset:
 	eye_coord = []

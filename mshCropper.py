@@ -68,7 +68,7 @@ if not os.path.exists(args.target_path):
 		os.makedirs(args.target_path)
 	except:
 		print "Can't mkdir target directories"
-		exit()
+		sys.exit(1)
 	
 # frames_info[frame_path, person_id]
 # Only frames which contains someone are loaded.
@@ -78,7 +78,7 @@ try:
 	xmltree = xmlreader.parse(args.id_path)
 except:
 	print "ID file cannot be opened"
-	exit()
+	sys.exit(1)
 dataset = xmltree.getroot()
 for frame in dataset:
 	if len(frame) == 1:
@@ -114,7 +114,7 @@ try:
 			os.mkdir(args.target_path + person_id)
 except:
 	print "Can't mkdir target directories"
-	exit()
+	sys.exit(1)
 	
 
 ## main processing

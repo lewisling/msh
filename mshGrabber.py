@@ -42,11 +42,11 @@ args = parser.parse_args()
 
 if args.identifier <= 0:
 	print "Person id should be > 0"
-	exit()
+	sys.exit(1)
 	
 if args.max_fps <= 0:
 	print "FPS limiter should be set at value > 0"
-	exit()
+	sys.exit(1)
 
 
 ## initializing variables and objects
@@ -67,7 +67,7 @@ if not os.path.exists(args.target_path):
 		os.mkdir(args.target_path)
 	except:
 		print "Can't mkdir target directories"
-		exit()
+		sys.exit(1)
 
 person_id = str(args.identifier).rjust(4, '0')
 
@@ -83,7 +83,7 @@ try:
 	open(xml_path, 'a').close()
 except IOError:
 	print "ERROR: Can't touch XML file in target directory"
-	exit()
+	sys.exit(1)
 else:
 	parser = xmlwriter.XMLParser(remove_blank_text = True)
 	try:

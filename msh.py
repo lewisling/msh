@@ -135,7 +135,7 @@ try:
 	face_recognizer.load(args.facerec_model_path)
 except:
 	print "Something went wrong face recognizer model, exiting..."
-	exit()
+	sys.exit(1)
 
 # temporary!
 train_face_size = (96, 96)

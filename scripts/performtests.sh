@@ -78,6 +78,7 @@ train_facerec_models ()
 # (fast but enough accurate)
 test_face_recognizer ()
 {
+	echo "Testing face recognizer"
 }
 
 

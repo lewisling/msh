@@ -45,13 +45,19 @@ eyes_widths="0.8 0.85 0.9 0.95"
 
 sequences_resolutions="640x480 320x240"
 
-facerec_dev_sequences1="P1E_S1_C1 P1E_S2_C2	P1L_S1_C1 P1L_S2_C2"
-facerec_dev_sequences2="P2E_S2_C2/P2E_S2_C2.1 P2E_S1_C3/P2E_S1_C3.1 \
-P2L_S2_C2/P2L_S2_C2.1 P2L_S1_C1/P2L_S1_C1.1"
+facerec_dev_sequences1_1="P1E_S1_C1 P1E_S2_C2"
+facerec_dev_sequences1_2="P1L_S1_C1 P1L_S2_C2"
+facerec_dev_sequences2_1="P2E_S2_C2/P2E_S2_C2.1 P2E_S1_C3/P2E_S1_C3.1"
+facerec_dev_sequences2_2="P2L_S2_C2/P2L_S2_C2.1 P2L_S1_C1/P2L_S1_C1.1"
+facerec_dev_sequences1="$facerec_dev_sequences1_1 $facerec_dev_sequences1_2"
+facerec_dev_sequences2="$facerec_dev_sequences2_1 $facerec_dev_sequences2_2"
 facerec_dev_sequences="$facerec_dev_sequences1 $facerec_dev_sequences2"
-facerec_eval_sequences1="P1E_S3_C3 P1E_S4_C1 P1L_S3_C3 P1L_S4_C1"
-facerec_eval_sequences2="P2E_S4_C2/P2E_S4_C2.1 P2E_S3_C1/P2E_S3_C1.1 \
-P2L_S4_C2/P2L_S4_C2.1 P2L_S3_C3/P2L_S3_C3.1"
+facerec_eval_sequences1_1="P1E_S3_C3 P1E_S4_C1"
+facerec_eval_sequences1_2="P1L_S3_C3 P1L_S4_C1"
+facerec_eval_sequences2_1="P2E_S4_C2/P2E_S4_C2.1 P2E_S3_C1/P2E_S3_C1.1"
+facerec_eval_sequences2_2="P2L_S4_C2/P2L_S4_C2.1 P2L_S3_C3/P2L_S3_C3.1"
+facerec_eval_sequences1="$facerec_eval_sequences1_1 $facerec_eval_sequences1_2"
+facerec_eval_sequences2="$facerec_eval_sequences2_1 $facerec_eval_sequences2_2"
 facerec_eval_sequences="$facerec_eval_sequences1 $facerec_eval_sequences2"
 
 facerec_methods="eigenfaces fisherfaces lbph"
@@ -105,7 +111,8 @@ resize_frames ()
 	print_log INFO BEGIN $FUNCNAME $log_path
 	for resolution in $sequences_resolutions
 	do
-		for i in $facerec_dev_sequences $facerec_eval_sequences
+		# only these sequence need to be resized
+		for i in facedetect_dev_sequences $facerec_eval_sequences
 		do
 			if [ ! -d $output_path$resolution/$i ]
 			then
@@ -210,13 +217,21 @@ test_eyepair_detector ()
 crop_faces ()
 {
 	print_log INFO BEGIN $FUNCNAME $log_path
-	for sequence in $facerec_dev_sequences1
+	for sequence in $facerec_dev_sequences1_1
 	do
-		echo $database_path$sequence $cropped_faces_path/"G1/"
+		echo $database_path$sequence $cropped_faces_path/"G1_1/"
 	done
-	for sequence in $facerec_dev_sequences2
+	for sequence in $facerec_dev_sequences1_2
 	do
-		echo $database_path$sequence $cropped_faces_path/"G2/"
+		echo $database_path$sequence $cropped_faces_path/"G1_2/"
+	done
+	for sequence in $facerec_dev_sequences2_1
+	do
+		echo $database_path$sequence $cropped_faces_path/"G2_1/"
+	done
+	for sequence in $facerec_dev_sequences2_2
+	do
+		echo $database_path$sequence $cropped_faces_path/"G2_2/"
 	done
 	print_log INFO FINISH $FUNCNAME $log_path
 }
@@ -225,8 +240,10 @@ crop_faces ()
 train_facerec_models ()
 {
 	print_log INFO BEGIN $FUNCNAME $log_path
-	echo $cropped_faces_path/"G1/"
-	echo $cropped_faces_path/"G2/"
+	echo $cropped_faces_path/"G1_1/"
+	echo $cropped_faces_path/"G1_2/"
+	echo $cropped_faces_path/"G2_1/"
+	echo $cropped_faces_path/"G2_2/"
 	print_log INFO FINISH $FUNCNAME $log_path
 }
 

@@ -88,13 +88,9 @@ if not args.quiet:
 face_recognizer.save(cropped_faces_dir + '/' + xmlfile_name + ".xml")
 
 
-## TODO: sending report to stdout
-
-if not args.quiet:
-	# watch out for hack in print use!
-	print xmlfile_name \
-		+ ": " \
-		+ str(round(finish_time - begin_time, 2)) \
-		+ " seconds",
-	if args.method != "lbph":
-		print "\b, " + str(face_recognizer.getInt("ncomponents")) + " components"
+## sending report to stdout
+print xmlfile_name \
+	+ " : " \
+	+ str(round(finish_time - begin_time, 2)) \
+	+ " seconds " \
+	+ len(train_faces_indices) + " components"

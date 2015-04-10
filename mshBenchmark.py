@@ -260,4 +260,5 @@ print args.face_cascade_sf, \
 	round(max_incorrect_confidence, 2), \
 	round(min_fps, 2), \
 	round(max_fps, 2), \
-	round(avg_fps, 2)
+	round(avg_fps, 2), \
+	round(finish_time - begin_time, 2)

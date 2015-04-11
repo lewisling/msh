@@ -73,6 +73,11 @@ parser.add_argument(
 	help = "cropped image dimmension in pixels",
 	default = 96,
 	type = int)
+parser.add_argument(
+	"-r", "--resolution",
+	help = "resolution of processed stream, \
+		used to scale coords from groundtruth",
+	choices = ["640x480", "320x240"])
 args = parser.parse_args()
 
 
@@ -96,6 +101,13 @@ n_incorrect_recognitions = 0
 min_confidence = 0.0
 max_confidence = sys.float_info.max
 max_incorrect_confidence = sys.float_info.max
+
+if args.resolution == "640x480":
+	groundtruth_scale = 1.25
+elif args.resolution == "320x240":
+	groundtruth_scale = 2.5
+else:
+	groundtruth_scale = 1.0
 
 
 ## initializing objects
@@ -153,16 +165,19 @@ for frame in dataset:
 			# groundtruth from chokepoint
 			if len(person) == 2:
 				for eyes in person:
-					eye_coord.append((int(eyes.get('x')), int(eyes.get('y'))))
+					eye_coord.append([int(eyes.get('x')), int(eyes.get('y'))])
 			# "groundtruth" created by mshGrabber
 			else:
-				eye_coord.append((-1, -1))
-				eye_coord.append((-1, -1))
+				eye_coord.append([-1, -1])
+				eye_coord.append([-1, -1])
 	# frame without or with more than one person
 	else:
 		person_id = None
-		eye_coord.append((-1, -1))
-		eye_coord.append((-1, -1))
+		eye_coord.append([-1, -1])
+		eye_coord.append([-1, -1])
+	# apply groundtruth scaling
+	eye_coord = [[int(x / groundtruth_scale), int(y / groundtruth_scale)]
+		for [x, y] in eye_coord]
 	frames_info.append([
 		args.stream_path + frame_name + ".jpg", 
 		person_id, eye_coord[0], eye_coord[1]])
@@ -174,7 +189,7 @@ begin_time = time.time()
 
 for (frame_path, person_id, left_eye, right_eye) in frames_info:
 	begin_frame_time = time.time()
-	
+
 	frame_img = cv2.imread(frame_path, cv2.IMREAD_GRAYSCALE)
 	if frame_img == None:
 		print "Reading sequence failed"
@@ -213,6 +228,7 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 						n_correct_eyepairs += 1
 				else:
 					n_incorrect_eyepairs += 1
+					
 	# face recognition
 	if args.facerec_method != "none":
 		for face_img in face_images:

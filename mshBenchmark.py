@@ -261,20 +261,25 @@ finish_time = time.time()
 
 avg_fps = len(frames_info) / (finish_time - begin_time)
 
-print args.face_cascade_sf, \
+print len(frames_info), \
+	n_total_faces, '|', \
+	args.face_cascade_sf, \
 	args.face_cascade_mn, \
-	len(frames_info), \
-	n_total_faces, \
 	n_correct_faces, \
-	n_incorrect_faces, \
+	n_incorrect_faces, '|', \
+	args.eyepair_cascade_sf, \
+	args.eyepair_cascade_mn, \
 	n_correct_eyepairs, \
-	n_incorrect_eyepairs, \
+	n_incorrect_eyepairs, '|', \
+	args.facerec_method, \
+	args.eyes_position, \
+	args.eyes_width, \
 	n_correct_recognitions, \
-	n_incorrect_recognitions, \
+	n_incorrect_recognitions, '|', \
 	round(min_confidence, 2), \
 	round(max_confidence, 2), \
-	round(max_incorrect_confidence, 2), \
+	round(max_incorrect_confidence, 2), '|', \
 	round(min_fps, 2), \
 	round(max_fps, 2), \
-	round(avg_fps, 2), \
+	round(avg_fps, 2), '|', \
 	round(finish_time - begin_time, 2)

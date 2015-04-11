@@ -28,20 +28,21 @@ face_cascade_path=\
 eyepair_cascade_path=\
 "/usr/share/opencv/haarcascades/haarcascade_mcs_eyepair_big.xml"
 groundtruths_path=$database_path"groundtruth/"
-cropped_faces_path=$output_path"cropped_faces"
+cropped_faces_path=$output_path"cropped_faces/"
 
-log_path=$output_path"logfile"
-detector_results_path=$output_path"results_detector"
-trainer_results_path=$output_path"results_trainer"
-recognizer_results_path=$output_path"results_recognizer"
+log_file=$output_path"logfile"
+facedetector_results_file=$output_path"results_facedetector"
+eyepairdetector_results_file=$output_path"results_eyepairdetector"
+trainer_results_file=$output_path"results_trainer"
+recognizer_results_file=$output_path"results_recognizer"
 
 facedetect_dev_sequences="P1E_S1_C1"
 face_cascade_sfs="1.1 1.2 1.5 2.0 3.0 5.0"
 face_cascade_mns="2 3 4 5 6"
-eyepair_cascade_sfs="1.01 1.1 1.2 1.4 1.8 2.0"
-eyepair_cascade_mns="2 3 4 5 6"
-eyes_positions="0.2 0.25 0.3 0.35"
-eyes_widths="0.8 0.85 0.9 0.95"
+eyepair_cascade_sfs="1.05 1.1 1.2"
+eyepair_cascade_mns="3 4 5 6"
+eyes_positions="0.2 0.25 0.3"
+eyes_widths="0.7 0.8 0.9"
 
 sequences_resolutions="640x480 320x240"
 
@@ -59,6 +60,7 @@ facerec_eval_sequences2_2="P2L_S4_C2/P2L_S4_C2.1 P2L_S3_C3/P2L_S3_C3.1"
 facerec_eval_sequences1="$facerec_eval_sequences1_1 $facerec_eval_sequences1_2"
 facerec_eval_sequences2="$facerec_eval_sequences2_1 $facerec_eval_sequences2_2"
 facerec_eval_sequences="$facerec_eval_sequences1 $facerec_eval_sequences2"
+facerec_groups="1_1 1_2 2_1 2_2"
 
 facerec_methods="eigenfaces fisherfaces lbph"
 
@@ -74,8 +76,8 @@ print_log ()
 # print information about finishing and exit
 atexit ()
 {
-	print_log ENDLOG FINISH LOG $log_path
-	echo -e "\n" | tee -a $log_path
+	print_log ENDLOG FINISH LOG $log_file
+	echo -e | tee -a $log_file
 	exit $1
 }
 
@@ -86,7 +88,7 @@ test_last_call ()
 	rc=$?
 	if [ $rc -ne 0 ]
 	then
-		print_log ERROR FAILED $1 $log_path
+		print_log ERROR FAILED $1 $log_file
 		atexit $rc
 	fi
 }
@@ -108,7 +110,7 @@ make_dirs ()
 # perform resize of frames in test sequences and save them in output_path
 resize_frames ()
 {
-	print_log INFO BEGIN $FUNCNAME $log_path
+	print_log INFO BEGIN $FUNCNAME $log_file
 	for resolution in $sequences_resolutions
 	do
 		# only these sequence need to be resized
@@ -126,23 +128,49 @@ resize_frames ()
 					test_last_call $FUNCNAME
 				done
 			else
-				print_log INFO SKIPPED $output_path$resolution/$i $log_path
+				print_log INFO SKIPPED $output_path$resolution/$i $log_file
 				continue
 			fi
 		done
 	done
-	print_log INFO FINISH $FUNCNAME $log_path
+	print_log INFO FINISH $FUNCNAME $log_file
 }
 
 # perform tests of face detector (without eyepair detector yet) 
 # and save results in file
 test_face_detector ()
 {
-	print_log INFO BEGIN $FUNCNAME $log_path
+	print_log INFO BEGIN $FUNCNAME $log_file
 	
-	print_log INFO BENCHMARK-800x600 $FUNCNAME $detector_results_path
+	# perform tests for prescaled lower resolution sequences
+	for resolution in $sequences_resolutions
+	do
+		for sequence in $facedetect_dev_sequences
+		do
+			print_log INFO "BENCHMARK-FACEDETECT-$resolution-$sequence" \
+				$FUNCNAME $log_file
+			for sf in $face_cascade_sfs
+			do
+				for mn in $face_cascade_mns
+				do
+					mshBenchmark.py \
+						$output_path$resolution/$sequence \
+						$groundtruths_path$sequence".xml" \
+						$face_cascade_path $sf $mn \
+						$eyepair_cascade_path 10.0 1 \
+						"none" "none" 0.5 1.0 \
+						-r $resolution \
+						>> $facedetector_results_file-$resolution-$sequence
+					test_last_call $FUNCNAME
+				done
+			done
+		done
+	done
+	
 	for sequence in $facedetect_dev_sequences
 	do
+		print_log INFO "BENCHMARK-FACEDETECT-800x600-$sequence" \
+			$FUNCNAME $log_file
 		for sf in $face_cascade_sfs
 		do
 			for mn in $face_cascade_mns
@@ -154,35 +182,14 @@ test_face_detector ()
 					$groundtruths_path$sequence".xml" \
 					$face_cascade_path $sf $mn \
 					$eyepair_cascade_path 10.0 1 \
-					"none" "none" 0.5 1.0 >> $detector_results_path
+					"none" "none" 0.5 1.0 \
+					#~ >> $facedetector_results_file"-800x600-"$sequence
 				test_last_call $FUNCNAME
 			done
 		done
 	done
 	
-	# perform tests for prescaled lower resolution sequences
-	for resolution in $sequences_resolutions
-	do
-		print_log INFO "BENCHMARK-$resolution" $FUNCNAME $detector_results_path
-		for sequence in $facedetect_dev_sequences
-		do
-			for sf in $face_cascade_sfs
-			do
-				for mn in $face_cascade_mns
-				do
-					mshBenchmark.py \
-						$output_path$resolution/$sequence \
-						$groundtruths_path$sequence".xml" \
-						$face_cascade_path $sf $mn \
-						$eyepair_cascade_path 10.0 1 \
-						"none" "none" 0.5 1.0 >> $detector_results_path
-					test_last_call $FUNCNAME
-				done
-			done
-		done
-	done
-	
-	print_log INFO FINISH $FUNCNAME $log_path
+	print_log INFO FINISH $FUNCNAME $log_file
 }
 
 # perform tests of eyepair detector with fixed parameters of 
@@ -190,8 +197,9 @@ test_face_detector ()
 # $1, $2 - scale_factor and min_neighbors for face detector used in this test
 test_eyepair_detector ()
 {
-	print_log INFO BEGIN $FUNCNAME $log_path
-	print_log INFO BENCHMARK $FUNCNAME $detector_results_path
+	print_log INFO BEGIN $FUNCNAME $log_file
+	print_log INFO BENCHMARK-EYEPAIRDETECT \
+		$FUNCNAME $log_file
 	for sequence in $facedetect_dev_sequences
 	do
 		for sf in $eyepair_cascade_sfs
@@ -203,70 +211,143 @@ test_eyepair_detector ()
 					$groundtruths_path$sequence".xml" \
 					$face_cascade_path $1 $2 \
 					$eyepair_cascade_path $sf $mn \
-					"none" "none" 0.5 1.0 >> $detector_results_path
+					"none" "none" 0.5 1.0 \
+					>> $eyepairdetector_results_file-$sequence
 				test_last_call $FUNCNAME
 			done
 		done
 	done
-	print_log INFO FINISH $FUNCNAME $log_path
+	print_log INFO FINISH $FUNCNAME $log_file
 }
 
 # crop faces using scale_factors and min_neighbors parameters
 # for accurate face and eyepair detection and 
 # defined set of cropping parameters
+# $1, $2 - parameters for face cascade
+# $3, $4 - parameters for eyepair cascade
 crop_faces ()
 {
-	print_log INFO BEGIN $FUNCNAME $log_path
-	for sequence in $facerec_dev_sequences1_1
+	print_log INFO BEGIN $FUNCNAME $log_file
+	for eyes_pos in $eyes_positions
 	do
-		echo $database_path$sequence $cropped_faces_path/"G1_1/"
+		for eyes_width in $eyes_widths
+		do			
+			for group in $facerec_groups
+			do
+				sequences_array_name="facerec_dev_sequences${group}"
+				for sequence in ${!sequences_array_name}
+				do
+					mshCropper.py \
+						$database_path$sequence \
+						$cropped_faces_path"G"$group-$eyes_pos-$eyes_width/ \
+						$groundtruths_path$(basename $sequence)".xml" \
+						$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
+						-p $eyes_pos -w $eyes_width
+					test_last_call $FUNCNAME
+				done
+			done
+		done
 	done
-	for sequence in $facerec_dev_sequences1_2
-	do
-		echo $database_path$sequence $cropped_faces_path/"G1_2/"
-	done
-	for sequence in $facerec_dev_sequences2_1
-	do
-		echo $database_path$sequence $cropped_faces_path/"G2_1/"
-	done
-	for sequence in $facerec_dev_sequences2_2
-	do
-		echo $database_path$sequence $cropped_faces_path/"G2_2/"
-	done
-	print_log INFO FINISH $FUNCNAME $log_path
+	print_log INFO FINISH $FUNCNAME $log_file
 }
 
 # train face recognition models from sets of cropped faces
 train_facerec_models ()
 {
-	print_log INFO BEGIN $FUNCNAME $log_path
-	echo $cropped_faces_path/"G1_1/"
-	echo $cropped_faces_path/"G1_2/"
-	echo $cropped_faces_path/"G2_1/"
-	echo $cropped_faces_path/"G2_2/"
-	print_log INFO FINISH $FUNCNAME $log_path
+	print_log INFO BEGIN $FUNCNAME $log_file
+	echo -e >> $trainer_results_file
+	print_log INFO TRAIN $FUNCNAME $trainer_results_file
+	for eyes_pos in $eyes_positions
+	do
+		for eyes_width in $eyes_widths
+		do
+			for method in $facerec_methods
+			do
+				print_log INFO \
+					"TRAIN-eye_pos:$eyes_pos-eye_w:$eyes_width-$method" \
+					$FUNCNAME $trainer_results_file
+				for group in $facerec_groups
+				do
+					mshTrainer.py \
+						$cropped_faces_path"G"$group-$eyes_pos-$eyes_width/ \
+						$method -q >> $trainer_results_file
+					test_last_call $FUNCNAME
+				done
+			done
+		done
+	done
+	print_log INFO FINISH $FUNCNAME $log_file
 }
 
 # test face recognizer against all trained models, using accurate 
 # eyepair detector parameters and selected face detector parameters
 # (fast but enough accurate)
+# $1, $2 - parameters for face cascade
+# $3, $4 - parameters for eyepair cascade
+# TODO: now function is proof of concept and need love!
 test_face_recognizer ()
 {
-	print_log INFO BEGIN $FUNCNAME $log_path
-	for method in $facerec_methods
+	print_log INFO BEGIN $FUNCNAME $log_file
+	for eyes_position in $eyes_positions
 	do
-		for sequence in $facerec_eval_sequences
+		for eyes_width in $eyes_widths
 		do
-			echo $method $database_path$sequence"/"
+			print_log INFO \
+				"TEST-eyes_pos:$eyes_position eyes_w-$eyes_width" \
+				$FUNCNAME $log_file
+				
+			for group in $facerec_groups
+			do
+				sequences_array_name="facerec_eval_sequences${group}"
+				for sequence in ${!sequences_array_name}
+				do
+					mshCropper.py \
+						$database_path$sequence \
+						$cropped_faces_path"G"$group-$eyes_position-$eyes_width/ \
+						$groundtruths_path$(basename $sequence)".xml" \
+						$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
+						-p $eyes_position -w $eyes_width
+					test_last_call $FUNCNAME
+				done
+			done
+				
+			for sequence in $facerec_eval_sequences1_1
+			do
+				echo $database_path$sequence $1 $2 $3 $4 \
+					$cropped_faces_path"G1_1/"$(basename $sequence)".xml"
+					$eyes_position $eyes_width $cropped_faces_path"G1_1/" \
+					>> $recognizer_results_file"-800x600-"$sequence
+			done
+			for sequence in $facerec_eval_sequences1_2
+			do
+				echo $database_path$sequence $1 $2 $3 $4 \
+					$cropped_faces_path"G1_2/"$(basename $sequence)".xml"
+					$eyes_position $eyes_width $cropped_faces_path"G1_2/" \
+					>> $recognizer_results_file"-800x600-"$sequence
+			done
+			for sequence in $facerec_eval_sequences2_1
+			do
+				echo $database_path$sequence $1 $2 $3 $4 \
+					$cropped_faces_path"G2_1/"$(basename $sequence)".xml"
+					$eyes_position $eyes_width $cropped_faces_path"G2_1/" \
+					>> $recognizer_results_file"-800x600-"$(basename $sequence)
+			done
+			for sequence in $facerec_eval_sequences2_2
+			do
+				echo $database_path$sequence $1 $2 $3 $4 \
+					$cropped_faces_path"G2_2/"$(basename $sequence)".xml"
+					$eyes_position $eyes_width $cropped_faces_path"G2_2/" \
+					>> $recognizer_results_file"-800x600-"$(basename $sequence)
+			done
 		done
 	done
-	print_log INFO FINISH $FUNCNAME $log_path
+	print_log INFO FINISH $FUNCNAME $log_file
 }
 
 
 # here comes "main" function
 make_dirs $output_path
-print_log STARTLOG BEGIN LOG $log_path
+print_log STARTLOG BEGIN LOG $log_file
 
 case "$#" in
 	$n_first_phase_args)
@@ -283,7 +364,9 @@ case "$#" in
 		train_facerec_models
 		;;
 	$n_fourth_phase_args)
-		test_face_recognizer
+		test_face_recognizer \
+			$opt_face_cascade_sf $opt_face_cascade_nm \
+			$eyepair_cascade_sf $eyepair_cascade_nm
 		;;
 	*)
 		echo "Usage: $(basename $0) $script_params"

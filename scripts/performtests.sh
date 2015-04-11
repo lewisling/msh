@@ -112,7 +112,7 @@ resize_frames ()
 	for resolution in $sequences_resolutions
 	do
 		# only these sequence need to be resized
-		for i in facedetect_dev_sequences $facerec_eval_sequences
+		for i in $facedetect_dev_sequences $facerec_eval_sequences
 		do
 			if [ ! -d $output_path$resolution/$i ]
 			then

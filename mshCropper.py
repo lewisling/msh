@@ -30,8 +30,24 @@ parser.add_argument(
 	"face_cascade_path",
 	help = "path to face HaarCascade")
 parser.add_argument(
+	"face_cascade_sf",
+	help = "face detection algorithm parameter - scale_factor",
+	type = float)
+parser.add_argument(
+	"face_cascade_mn",
+	help = "face detection algorithm parameter - min_neighbors",
+	type = int)
+parser.add_argument(
 	"eyepair_cascade_path",
 	help = "path to eyepair HaarCascade")
+parser.add_argument(
+	"eyepair_cascade_sf",
+	help = "eyepair detection algorithm parameter - scale_factor",
+	type = float)
+parser.add_argument(
+	"eyepair_cascade_mn",
+	help = "eyepair detection algorithm parameter - min_neighbors",
+	type = int)
 parser.add_argument(
 	"-s", "--cropped_image_size",
 	help = "cropped image dimmension in pixels",
@@ -91,10 +107,11 @@ for frame in dataset:
 try:
 	face_cropper = facecropper.FaceCropper(
 		args.face_cascade_path, args.eyepair_cascade_path,
-		target_image_size = args.cropped_image_size,
-		eyes_position = args.eyes_position, 
-		eyes_width = args.eyes_width,
-		histogram_equalization = args.histogram_equalization)
+		args.face_cascade_sf, args.eyepair_cascade_sf,
+		args.face_cascade_mn, args.eyepair_cascade_mn,
+		args.cropped_image_size,
+		args.eyes_position, args.eyes_width,
+		args.histogram_equalization)
 except:
 	raise
 	

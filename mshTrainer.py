@@ -93,4 +93,4 @@ print xmlfile_name \
 	+ " : " \
 	+ str(round(finish_time - begin_time, 2)) \
 	+ " seconds " \
-	+ len(train_faces_indices) + " components"
+	+ str(len(train_faces_indices)) + " components"

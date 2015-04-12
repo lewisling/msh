@@ -172,7 +172,7 @@ for frame in dataset:
 				eye_coord.append([-1, -1])
 	# frame without or with more than one person
 	else:
-		person_id = None
+		person_id = "0000"
 		eye_coord.append([-1, -1])
 		eye_coord.append([-1, -1])
 	# apply groundtruth scaling
@@ -244,7 +244,7 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 			if confidence < max_confidence:
 				max_confidence = confidence
 			
-	if person_id != None:	
+	if person_id != "0000":	
 		n_total_faces += 1
 		
 	frame_time = time.time() - begin_frame_time

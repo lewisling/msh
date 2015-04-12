@@ -232,19 +232,25 @@ crop_faces ()
 	do
 		for eyes_width in $eyes_widths
 		do			
-			for group in $facerec_groups
+			for sequence in $facerec_dev_sequences1
 			do
-				sequences_array_name="facerec_dev_sequences${group}"
-				for sequence in ${!sequences_array_name}
-				do
-					mshCropper.py \
-						$database_path$sequence \
-						$cropped_faces_path"G"$group-$eyes_pos-$eyes_width/ \
-						$groundtruths_path$(basename $sequence)".xml" \
-						$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
-						-p $eyes_pos -w $eyes_width
-					test_last_call $FUNCNAME
-				done
+				mshCropper.py \
+					$database_path$sequence \
+					$cropped_faces_path"G1"-$eyes_pos-$eyes_width/ \
+					$groundtruths_path$(basename $sequence)".xml" \
+					$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
+					-p $eyes_pos -w $eyes_width
+				test_last_call $FUNCNAME
+			done
+			for sequence in $facerec_dev_sequences2
+			do
+				mshCropper.py \
+					$database_path$sequence \
+					$cropped_faces_path"G2"-$eyes_pos-$eyes_width/ \
+					$groundtruths_path$(basename $sequence)".xml" \
+					$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
+					-p $eyes_pos -w $eyes_width
+				test_last_call $FUNCNAME
 			done
 		done
 	done
@@ -255,27 +261,22 @@ crop_faces ()
 train_facerec_models ()
 {
 	print_log INFO BEGIN $FUNCNAME $log_file
-	echo -e >> $trainer_results_file
-	print_log INFO TRAIN $FUNCNAME $trainer_results_file
 	for eyes_pos in $eyes_positions
 	do
 		for eyes_width in $eyes_widths
 		do
 			for method in $facerec_methods
 			do
-				print_log INFO \
-					"TRAIN-eye_pos:$eyes_pos-eye_w:$eyes_width-$method" \
-					$FUNCNAME $trainer_results_file
-				for group in $facerec_groups
-				do
-					mshTrainer.py \
-						$cropped_faces_path"G"$group-$eyes_pos-$eyes_width/ \
-						$method -q >> $trainer_results_file
-					test_last_call $FUNCNAME
-				done
+				echo "mshTrainer.py" \
+					"$cropped_faces_path"G1"-$eyes_pos-$eyes_width/" \
+					"$method -q >> $trainer_results_file"
+				echo "mshTrainer.py" \
+					"$cropped_faces_path"G2"-$eyes_pos-$eyes_width/" \
+					"$method -q >> $trainer_results_file"
 			done
 		done
-	done
+	done | parallel -j4
+	test_last_call $FUNCNAME
 	print_log INFO FINISH $FUNCNAME $log_file
 }
 
@@ -284,60 +285,45 @@ train_facerec_models ()
 # (fast but enough accurate)
 # $1, $2 - parameters for face cascade
 # $3, $4 - parameters for eyepair cascade
-# TODO: now function is proof of concept and need love!
 test_face_recognizer ()
 {
 	print_log INFO BEGIN $FUNCNAME $log_file
-	for eyes_position in $eyes_positions
+	for eyes_pos in $eyes_positions
 	do
 		for eyes_width in $eyes_widths
 		do
 			print_log INFO \
-				"TEST-eyes_pos:$eyes_position eyes_w-$eyes_width" \
+				"TEST800x600-eyes_pos:$eyes_pos eyes_w-$eyes_width" \
 				$FUNCNAME $log_file
-				
-			for group in $facerec_groups
+			for sequence in $facerec_eval_sequences1
 			do
-				sequences_array_name="facerec_eval_sequences${group}"
-				for sequence in ${!sequences_array_name}
+				for method in $facerec_methods
 				do
-					mshCropper.py \
+					mshBenchmark.py \
 						$database_path$sequence \
-						$cropped_faces_path"G"$group-$eyes_position-$eyes_width/ \
 						$groundtruths_path$(basename $sequence)".xml" \
 						$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
-						-p $eyes_position -w $eyes_width
+						$method \
+						$cropped_faces_path"G1"-$eyes_pos-$eyes_width/"G1"-$eyes_pos-$eyes_width-$method".xml" \
+						$eyes_pos $eyes_width \
+						>> $recognizer_results_file"-800x600-"$(basename $sequence)
 					test_last_call $FUNCNAME
 				done
 			done
-				
-			for sequence in $facerec_eval_sequences1_1
+			for sequence in $facerec_eval_sequences2
 			do
-				echo $database_path$sequence $1 $2 $3 $4 \
-					$cropped_faces_path"G1_1/"$(basename $sequence)".xml"
-					$eyes_position $eyes_width $cropped_faces_path"G1_1/" \
-					>> $recognizer_results_file"-800x600-"$sequence
-			done
-			for sequence in $facerec_eval_sequences1_2
-			do
-				echo $database_path$sequence $1 $2 $3 $4 \
-					$cropped_faces_path"G1_2/"$(basename $sequence)".xml"
-					$eyes_position $eyes_width $cropped_faces_path"G1_2/" \
-					>> $recognizer_results_file"-800x600-"$sequence
-			done
-			for sequence in $facerec_eval_sequences2_1
-			do
-				echo $database_path$sequence $1 $2 $3 $4 \
-					$cropped_faces_path"G2_1/"$(basename $sequence)".xml"
-					$eyes_position $eyes_width $cropped_faces_path"G2_1/" \
-					>> $recognizer_results_file"-800x600-"$(basename $sequence)
-			done
-			for sequence in $facerec_eval_sequences2_2
-			do
-				echo $database_path$sequence $1 $2 $3 $4 \
-					$cropped_faces_path"G2_2/"$(basename $sequence)".xml"
-					$eyes_position $eyes_width $cropped_faces_path"G2_2/" \
-					>> $recognizer_results_file"-800x600-"$(basename $sequence)
+				for method in $facerec_methods
+				do
+					mshBenchmark.py \
+						$database_path$sequence \
+						$groundtruths_path$(basename $sequence)".xml" \
+						$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
+						$method \
+						$cropped_faces_path"G2"-$eyes_pos-$eyes_width/"G2"-$eyes_pos-$eyes_width-$method".xml" \
+						$eyes_pos $eyes_width \
+						>> $recognizer_results_file"-800x600-"$(basename $sequence)
+					test_last_call $FUNCNAME
+				done
 			done
 		done
 	done
@@ -358,9 +344,9 @@ case "$#" in
 		test_eyepair_detector $face_cascade_sf $face_cascade_nm
 		;;
 	$n_third_phase_args)
-		crop_faces \
-			$face_cascade_sf $face_cascade_nm \
-			$eyepair_cascade_sf $eyepair_cascade_nm
+		#~ crop_faces \
+			#~ $face_cascade_sf $face_cascade_nm \
+			#~ $eyepair_cascade_sf $eyepair_cascade_nm
 		train_facerec_models
 		;;
 	$n_fourth_phase_args)

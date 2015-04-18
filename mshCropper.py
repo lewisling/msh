@@ -110,6 +110,7 @@ try:
 		args.face_cascade_sf, args.eyepair_cascade_sf,
 		args.face_cascade_mn, args.eyepair_cascade_mn,
 		args.cropped_image_size,
+		args.min_face_size, args.max_face_size,
 		args.eyes_position, args.eyes_width,
 		args.histogram_equalization)
 except:

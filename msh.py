@@ -65,6 +65,16 @@ parser.add_argument(
 	default = sys.float_info.max,
 	type = float)
 parser.add_argument(
+	"-minf", "--min_face_size",
+	help = "minimum possible face size",
+	default = 0,
+	type = int)
+parser.add_argument(
+	"-maxf", "--max_face_size",
+	help = "maximum possible face size",
+	default = 256,
+	type = int)
+parser.add_argument(
 	"-p", "--eyes_position",
 	help = "y eyes position in cropped image, given as percentage of \
 		croped image height",
@@ -105,6 +115,8 @@ try:
 		face_cascade_mn = args.min_neighbors,
 		eyes_position = args.eyes_position, 
 		eyes_width = args.eyes_width,
+		min_face_size = args.min_face_size, 
+		max_face_size = args.max_face_size,
 		histogram_equalization = args.histogram_equalization)
 except:
 	raise

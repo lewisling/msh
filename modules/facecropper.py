@@ -12,6 +12,7 @@ class FaceCropper(object):
 			face_cascade_sf = 1.2, eyepair_cascade_sf = 1.01,
 			face_cascade_mn = 6, eyepair_cascade_nm = 5,
 			target_image_size = 96,
+			min_face_size = 0, max_face_size = 256,
 			eyes_position = 0.33, eyes_width = 0.67,
 			histogram_equalization = False,
 			debug = True):
@@ -20,6 +21,8 @@ class FaceCropper(object):
 		self.eyepair_cascade_sf = eyepair_cascade_sf
 		self.eyepair_cascade_nm = eyepair_cascade_nm
 		self.target_image_size = (target_image_size, target_image_size)
+		self.min_face_size = (min_face_size, min_face_size)
+		self.max_face_size = (max_face_size, max_face_size)
 		self.eyes_position = eyes_position
 		self.eyes_width = eyes_width
 		self.histogram_equalization = histogram_equalization
@@ -44,6 +47,9 @@ class FaceCropper(object):
 			print "\b, min neighbors: " + str(eyepair_cascade_nm) + '\n'
 			print "Eyes y-position: " + str(self.eyes_position), 
 			print "\b, eyes width: " + str(self.eyes_width)
+			print "Face size dimensions:",
+			print "min: " + str(self.min_face_size), 
+			print "\b, max: " + str(self.max_face_size)
 			print "Cropped image dimensions:",
 			print self.target_image_size
 			print "Histogram equalization:",
@@ -65,7 +71,8 @@ class FaceCropper(object):
 		for (x, y, w, h) in self._facecascade_results:
 			face_area = frame_img[y:(y + h), x:(x + w)]
 			eyes = self._eyepair_cascade.detectMultiScale(
-				face_area, self.eyepair_cascade_sf, self.eyepair_cascade_nm)
+				face_area, self.eyepair_cascade_sf, self.eyepair_cascade_nm,
+				minSize = self.min_face_size, maxSize = self.max_face_size)
 			# adding bbox position to coords of detected eyepair
 			eyes = [(ex + x, ey + y, ew, eh) for (ex, ey, ew, eh) in eyes]
 			self._eyepaircascade_results.append(eyes)
@@ -149,6 +156,16 @@ if __name__ == "__main__":
 		default = 96,
 		type = int)
 	parser.add_argument(
+		"-minf", "--min_face_size",
+		help = "minimum possible face size",
+		default = 0,
+		type = int)
+	parser.add_argument(
+		"-maxf", "--max_face_size",
+		help = "maximum possible face size",
+		default = 256,
+		type = int)		
+	parser.add_argument(
 		"-p", "--eyes_position",
 		help = "y eyes position in cropped image, given as percentage of \
 			croped image height",
@@ -174,6 +191,7 @@ if __name__ == "__main__":
 			args.face_cascade_sf, args.eyepair_cascade_sf,
 			args.face_cascade_mn, args.eyepair_cascade_mn,
 			args.cropped_image_size,
+			args.min_face_size, args.max_face_size,
 			args.eyes_position, args.eyes_width,
 			args.histogram_equalization)
 	except:

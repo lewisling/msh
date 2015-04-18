@@ -74,6 +74,16 @@ parser.add_argument(
 	default = 96,
 	type = int)
 parser.add_argument(
+	"-minf", "--min_face_size",
+	help = "minimum possible face size",
+	default = 0,
+	type = int)
+parser.add_argument(
+	"-maxf", "--max_face_size",
+	help = "maximum possible face size",
+	default = 256,
+	type = int)		
+parser.add_argument(
 	"-r", "--resolution",
 	help = "resolution of processed stream, \
 		used to scale coords from groundtruth",
@@ -118,6 +128,7 @@ try:
 		args.face_cascade_sf, args.eyepair_cascade_sf,
 		args.face_cascade_mn, args.eyepair_cascade_mn,
 		args.cropped_image_size,
+		args.min_face_size, args.max_face_size,
 		args.eyes_position, args.eyes_width,
 		args.histogram_equalization,
 		False)

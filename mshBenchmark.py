@@ -111,6 +111,8 @@ n_incorrect_recognitions = 0
 min_confidence = 0.0
 max_confidence = sys.float_info.max
 max_incorrect_confidence = sys.float_info.max
+min_face_size = sys.maxint
+max_face_size = 0
 min_correct_face_size = sys.maxint
 max_correct_face_size = 0
 
@@ -225,6 +227,10 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 				(right_eye[0] >= x and right_eye[0] <= (x + w)) and \
 				(right_eye[1] >= y and right_eye[1] <= (y + h))):
 					n_correct_faces += 1
+					if min(w, h) < min_face_size:
+						min_face_size = min(w, h)
+					if max(w, h) > max_face_size:
+						max_face_size = max(w, h)
 			else:
 				n_incorrect_faces += 1
 	eyepairs = face_cropper.get_eyepaircascade_results()
@@ -297,6 +303,8 @@ print len(frames_info), \
 	round(min_confidence, 2), \
 	round(max_confidence, 2), \
 	round(max_incorrect_confidence, 2), '|', \
+	min_face_size, \
+	max_face_size, \
 	min_correct_face_size, \
 	max_correct_face_size, '|', \
 	round(min_fps, 2), \

@@ -67,12 +67,12 @@ class FaceCropper(object):
 		self._eyepaircascade_results = []
 		
 		self._facecascade_results = self._face_cascade.detectMultiScale(
-			frame_img, self.face_cascade_sf, self.face_cascade_mn)
+			frame_img, self.face_cascade_sf, self.face_cascade_mn,
+			minSize = self.min_face_size, maxSize = self.max_face_size)
 		for (x, y, w, h) in self._facecascade_results:
 			face_area = frame_img[y:(y + h), x:(x + w)]
 			eyes = self._eyepair_cascade.detectMultiScale(
-				face_area, self.eyepair_cascade_sf, self.eyepair_cascade_nm,
-				minSize = self.min_face_size, maxSize = self.max_face_size)
+				face_area, self.eyepair_cascade_sf, self.eyepair_cascade_nm)
 			# adding bbox position to coords of detected eyepair
 			eyes = [(ex + x, ey + y, ew, eh) for (ex, ey, ew, eh) in eyes]
 			self._eyepaircascade_results.append(eyes)

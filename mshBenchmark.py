@@ -111,6 +111,8 @@ n_incorrect_recognitions = 0
 min_confidence = 0.0
 max_confidence = sys.float_info.max
 max_incorrect_confidence = sys.float_info.max
+min_correct_face_size = sys.maxint
+max_correct_face_size = 0
 
 if args.resolution == "640x480":
 	groundtruth_scale = 1.25
@@ -206,6 +208,7 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 		print "Reading sequence failed"
 		break
 	face_images = face_cropper.get_face_images(frame_img)
+	face_locations = face_cropper.get_face_locations()
 	faces = face_cropper.get_facecascade_results()
 	# for every bounding-box in frame...
 	for (x, y, w, h) in faces:
@@ -242,10 +245,14 @@ for (frame_path, person_id, left_eye, right_eye) in frames_info:
 					
 	# face recognition
 	if args.facerec_method != "none":
-		for face_img in face_images:
+		for face_img, (x, y, w, h) in zip(face_images, face_locations):
 			[label, confidence] = face_recognizer.predict(np.asarray(face_img))
 			if label == int(person_id):
 				n_correct_recognitions += 1
+				if min(w, h) < min_correct_face_size:
+					min_correct_face_size = min(w, h)
+				if max(w, h) > max_correct_face_size:
+					max_correct_face_size = max(w, h)
 			else:
 				n_incorrect_recognitions += 1
 				if confidence < max_incorrect_confidence:
@@ -290,6 +297,8 @@ print len(frames_info), \
 	round(min_confidence, 2), \
 	round(max_confidence, 2), \
 	round(max_incorrect_confidence, 2), '|', \
+	min_correct_face_size, \
+	max_correct_face_size, '|', \
 	round(min_fps, 2), \
 	round(max_fps, 2), \
 	round(avg_fps, 2), '|', \

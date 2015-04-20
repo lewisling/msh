@@ -36,13 +36,12 @@ eyepairdetector_results_file=$output_path"results_eyepairdetector"
 trainer_results_file=$output_path"results_trainer"
 recognizer_results_file=$output_path"results_recognizer"
 
-facedetect_dev_sequences="P1E_S1_C1"
-face_cascade_sfs="1.1 1.2 1.5 2.0 3.0 5.0"
-face_cascade_mns="2 3 4 5 6"
-eyepair_cascade_sfs="1.05 1.1 1.2"
+face_cascade_sfs="1.1 1.2 1.5 2.0 3.0"
+face_cascade_mns="3 4 5 6"
+eyepair_cascade_sfs="1.01 1.05 1.1 1.2"
 eyepair_cascade_mns="3 4 5 6"
-eyes_positions="0.2 0.25 0.3"
-eyes_widths="0.7 0.8 0.9"
+eyes_positions="0.2 0.25 0.3 0.35"
+eyes_widths="0.7 0.8 0.9 0.95"
 
 sequences_resolutions="640x480 320x240"
 
@@ -114,7 +113,7 @@ resize_frames ()
 	for resolution in $sequences_resolutions
 	do
 		# only these sequence need to be resized
-		for i in $facedetect_dev_sequences $facerec_eval_sequences
+		for i in $facerec_dev_sequences $facerec_eval_sequences
 		do
 			if [ ! -d $output_path$resolution/$i ]
 			then
@@ -141,33 +140,7 @@ resize_frames ()
 test_face_detector ()
 {
 	print_log INFO BEGIN $FUNCNAME $log_file
-	
-	# perform tests for prescaled lower resolution sequences
-	for resolution in $sequences_resolutions
-	do
-		for sequence in $facedetect_dev_sequences
-		do
-			print_log INFO "BENCHMARK-FACEDETECT-$resolution-$sequence" \
-				$FUNCNAME $log_file
-			for sf in $face_cascade_sfs
-			do
-				for mn in $face_cascade_mns
-				do
-					mshBenchmark.py \
-						$output_path$resolution/$sequence \
-						$groundtruths_path$sequence".xml" \
-						$face_cascade_path $sf $mn \
-						$eyepair_cascade_path 10.0 1 \
-						"none" "none" 0.5 1.0 \
-						-r $resolution \
-						>> $facedetector_results_file-$resolution-$sequence
-					test_last_call $FUNCNAME
-				done
-			done
-		done
-	done
-	
-	for sequence in $facedetect_dev_sequences
+	for sequence in $facerec_dev_sequences2
 	do
 		print_log INFO "BENCHMARK-FACEDETECT-800x600-$sequence" \
 			$FUNCNAME $log_file
@@ -179,16 +152,40 @@ test_face_detector ()
 				# because these results are ignored here
 				mshBenchmark.py \
 					$database_path$sequence \
-					$groundtruths_path$sequence".xml" \
+					$groundtruths_path$(basename $sequence)".xml" \
 					$face_cascade_path $sf $mn \
 					$eyepair_cascade_path 10.0 1 \
 					"none" "none" 0.5 1.0 \
-					#~ >> $facedetector_results_file"-800x600-"$sequence
+					-minf 16 -maxf 256 \
+					>> $facedetector_results_file"-800x600-"$(basename $sequence)
 				test_last_call $FUNCNAME
 			done
 		done
 	done
-	
+	# perform tests for prescaled lower resolution sequences
+	for resolution in $sequences_resolutions
+	do
+		for sequence in $facerec_dev_sequences
+		do
+			print_log INFO "BENCHMARK-FACEDETECT-$resolution-$sequence" \
+				$FUNCNAME $log_file
+			for sf in $face_cascade_sfs
+			do
+				for mn in $face_cascade_mns
+				do
+					mshBenchmark.py \
+						$output_path$resolution/$sequence \
+						$groundtruths_path$(basename $sequence)".xml" \
+						$face_cascade_path $sf $mn \
+						$eyepair_cascade_path 10.0 1 \
+						"none" "none" 0.5 1.0 \
+						-r $resolution -minf 16 -maxf 256 \
+						>> $facedetector_results_file-$resolution-$(basename $sequence)
+					test_last_call $FUNCNAME
+				done
+			done
+		done
+	done
 	print_log INFO FINISH $FUNCNAME $log_file
 }
 
@@ -198,21 +195,21 @@ test_face_detector ()
 test_eyepair_detector ()
 {
 	print_log INFO BEGIN $FUNCNAME $log_file
-	print_log INFO BENCHMARK-EYEPAIRDETECT \
-		$FUNCNAME $log_file
-	for sequence in $facedetect_dev_sequences
+	for sequence in $facerec_dev_sequences
 	do
+		print_log INFO "BENCHMARK-EYEPAIRDETECT-800x600-$sequence" \
+			$FUNCNAME $log_file
 		for sf in $eyepair_cascade_sfs
 		do
 			for mn in $eyepair_cascade_mns
 			do
 				mshBenchmark.py \
 					$database_path$sequence \
-					$groundtruths_path$sequence".xml" \
+					$groundtruths_path$(basename $sequence)".xml" \
 					$face_cascade_path $1 $2 \
 					$eyepair_cascade_path $sf $mn \
-					"none" "none" 0.5 1.0 \
-					>> $eyepairdetector_results_file-$sequence
+					"none" "none" 0.5 1.0 -minf 36 -maxf 182 \
+					>> $eyepairdetector_results_file"-800x600-"$(basename $sequence)
 				test_last_call $FUNCNAME
 			done
 		done
@@ -231,26 +228,20 @@ crop_faces ()
 	for eyes_pos in $eyes_positions
 	do
 		for eyes_width in $eyes_widths
-		do			
-			for sequence in $facerec_dev_sequences1
+		do		
+			for group in {1..2}
 			do
-				mshCropper.py \
-					$database_path$sequence \
-					$cropped_faces_path"G1"-$eyes_pos-$eyes_width/ \
-					$groundtruths_path$(basename $sequence)".xml" \
-					$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
-					-p $eyes_pos -w $eyes_width
-				test_last_call $FUNCNAME
-			done
-			for sequence in $facerec_dev_sequences2
-			do
-				mshCropper.py \
-					$database_path$sequence \
-					$cropped_faces_path"G2"-$eyes_pos-$eyes_width/ \
-					$groundtruths_path$(basename $sequence)".xml" \
-					$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
-					-p $eyes_pos -w $eyes_width
-				test_last_call $FUNCNAME
+				sequences_array_name="facerec_dev_sequences${group}"
+				for sequence in ${!sequences_array_name}
+				do
+					mshCropper.py \
+						$database_path$sequence \
+						$cropped_faces_path"G"$group-$eyes_pos-$eyes_width/ \
+						$groundtruths_path$(basename $sequence)".xml" \
+						$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
+						-p $eyes_pos -w $eyes_width
+					test_last_call $FUNCNAME
+				done
 			done
 		done
 	done
@@ -285,6 +276,7 @@ train_facerec_models ()
 # (fast but enough accurate)
 # $1, $2 - parameters for face cascade
 # $3, $4 - parameters for eyepair cascade
+# TODO: remove these ugly long lines...
 test_face_recognizer ()
 {
 	print_log INFO BEGIN $FUNCNAME $log_file
@@ -295,34 +287,54 @@ test_face_recognizer ()
 			print_log INFO \
 				"TEST800x600-eyes_pos:$eyes_pos eyes_w-$eyes_width" \
 				$FUNCNAME $log_file
-			for sequence in $facerec_eval_sequences1
+			for group in {1..2}
 			do
-				for method in $facerec_methods
+				sequences_array_name="facerec_eval_sequences${group}"
+				for sequence in ${!sequences_array_name}
 				do
-					mshBenchmark.py \
-						$database_path$sequence \
-						$groundtruths_path$(basename $sequence)".xml" \
-						$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
-						$method \
-						$cropped_faces_path"G1"-$eyes_pos-$eyes_width/"G1"-$eyes_pos-$eyes_width-$method".xml" \
-						$eyes_pos $eyes_width \
-						>> $recognizer_results_file"-800x600-"$(basename $sequence)
-					test_last_call $FUNCNAME
+					for method in $facerec_methods
+					do
+						mshBenchmark.py \
+							$database_path$sequence \
+							$groundtruths_path$(basename $sequence)".xml" \
+							$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
+							$method \
+							$cropped_faces_path"G"$group-$eyes_pos-$eyes_width/"G"$group-$eyes_pos-$eyes_width-$method".xml" \
+							$eyes_pos $eyes_width \
+							>> $recognizer_results_file"-800x600-"$(basename $sequence)
+						test_last_call $FUNCNAME
+					done
 				done
 			done
-			for sequence in $facerec_eval_sequences2
+		done
+	done
+	for resolution in $sequences_resolutions
+	do
+		for eyes_pos in $eyes_positions
+		do
+			for eyes_width in $eyes_widths
 			do
-				for method in $facerec_methods
+				print_log INFO \
+					"TEST$resolution-eyes_pos:$eyes_pos eyes_w-$eyes_width" \
+					$FUNCNAME $log_file
+				for group in {1..2}
 				do
-					mshBenchmark.py \
-						$database_path$sequence \
-						$groundtruths_path$(basename $sequence)".xml" \
-						$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
-						$method \
-						$cropped_faces_path"G2"-$eyes_pos-$eyes_width/"G2"-$eyes_pos-$eyes_width-$method".xml" \
-						$eyes_pos $eyes_width \
-						>> $recognizer_results_file"-800x600-"$(basename $sequence)
-					test_last_call $FUNCNAME
+					sequences_array_name="facerec_eval_sequences${group}"
+					for sequence in ${!sequences_array_name}
+					do
+						for method in $facerec_methods
+						do
+							mshBenchmark.py \
+								$output_path$resolution/$sequence \
+								$groundtruths_path$(basename $sequence)".xml" \
+								$face_cascade_path $1 $2 $eyepair_cascade_path $3 $4 \
+								$method \
+								$cropped_faces_path"G"$group-$eyes_pos-$eyes_width/"G"$group-$eyes_pos-$eyes_width-$method".xml" \
+								$eyes_pos $eyes_width -r $resolution \
+								>> $recognizer_results_file"-$resolution-"$(basename $sequence)
+							test_last_call $FUNCNAME
+						done
+					done
 				done
 			done
 		done
@@ -330,13 +342,11 @@ test_face_recognizer ()
 	print_log INFO FINISH $FUNCNAME $log_file
 }
 
-
-# here comes "main" function
-make_dirs $output_path
 print_log STARTLOG BEGIN LOG $log_file
 
 case "$#" in
 	$n_first_phase_args)
+		make_dirs $output_path
 		resize_frames
 		test_face_detector
 		;;
@@ -344,9 +354,9 @@ case "$#" in
 		test_eyepair_detector $face_cascade_sf $face_cascade_nm
 		;;
 	$n_third_phase_args)
-		#~ crop_faces \
-			#~ $face_cascade_sf $face_cascade_nm \
-			#~ $eyepair_cascade_sf $eyepair_cascade_nm
+		crop_faces \
+			$face_cascade_sf $face_cascade_nm \
+			$eyepair_cascade_sf $eyepair_cascade_nm
 		train_facerec_models
 		;;
 	$n_fourth_phase_args)

@@ -35,12 +35,18 @@ parser.add_argument(
 	"-lp", "--legend_position",
 	help = "value of legend position for matplotlib",
 	type = int,
-	default = 2)
+	default = 0)
 parser.add_argument(
 	"-a", "--alpha",
 	help = "allow to define transparency of bars",
 	type = float,
 	default = 0.5)
+parser.add_argument(
+	"-r", "--round_factor",
+	help = "allow to define factor used to determine min and max values \
+		of plot",
+	type = float,
+	default = 10.0)
 args = parser.parse_args()
 
 
@@ -67,24 +73,23 @@ n_groups = len(param2_ticks)
 index = np.arange(n_groups)
 bar_width = (1.0 - 2 * bar_offset) / n_bars
 
-
 # plotting
 fig, ax = plt.subplots()
 
 for i in set(param1):
 	plt.bar(bar_offset + index + i * bar_width, 
-		values[(i * n_groups):(i * n_groups + n_groups)], 
+		[v for (p1, v) in zip(param1, values) if p1 == i], 
 		bar_width,
 		alpha = args.alpha,
 		color = default_colors[i],
-		label = args.param2_name + ' = ' + param1_ticks[i])
+		label = args.param1_name + ' = ' + param1_ticks[i])
 
-plt.xlabel(args.param1_name)
+plt.xlabel(args.param2_name)
 plt.ylabel(args.value_name)
 plt.xticks(index + 0.5, param2_ticks)
 ax.set_ylim(
-	math.floor(min(values) * 10.0) / 10.0, 
-	math.ceil(max(values) * 10.0) / 10.0)
+	math.floor(min(values) * args.round_factor) / args.round_factor, 
+	math.ceil(max(values) * args.round_factor) / args.round_factor)
 plt.legend(loc = args.legend_position)
 
 plt.tight_layout()

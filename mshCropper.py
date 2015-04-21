@@ -65,6 +65,16 @@ parser.add_argument(
 	default = 0.67,
 	type = float)
 parser.add_argument(
+	"-minf", "--min_face_size",
+	help = "minimum possible face size",
+	default = 0,
+	type = int)
+parser.add_argument(
+	"-maxf", "--max_face_size",
+	help = "maximum possible face size",
+	default = 256,
+	type = int)	
+parser.add_argument(
 	"-he", "--histogram_equalization",
 	help = "enable histogram equalization of output images",
 	action = "store_true")

@@ -24,37 +24,39 @@ case "$#" in
 		;;
 esac
 
+echo $(pwd)
+
 # TODO: face detection plots
-for resolution in $resolutions
-do
-	> results-facedetector-$resolution
-	for sf in $face_cascade_sfs
-	do
-		for mn in $face_cascade_mns
-		do
-			cat results_facedetector-$resolution-* | \
-			awk -vsf="$sf" -vmn="$mn" \
-			'{if($4 == sf && $5 == mn) \
-				{groundtruth_faces+=$2; \
-					correct_faces+=$6; incorrect_faces+=$7; \
-					fps+=$31; num+=1;}} \
-				END {print sf, mn, \
-					groundtruth_faces, correct_faces+incorrect_faces, \
-					correct_faces, incorrect_faces, fps/num}' \
-					>> results-facedetector-$resolution
-		done
-	done
-done 
+#~ for resolution in $resolutions
+#~ do
+	#~ > results-facedetector-$resolution
+	#~ for sf in $face_cascade_sfs
+	#~ do
+		#~ for mn in $face_cascade_mns
+		#~ do
+			#~ cat results_facedetector-$resolution-* | \
+			#~ awk -vsf="$sf" -vmn="$mn" \
+			#~ '{if($4 == sf && $5 == mn) \
+				#~ {groundtruth_faces+=$2; \
+					#~ correct_faces+=$6; incorrect_faces+=$7; \
+					#~ fps+=$31; num+=1;}} \
+				#~ END {print sf, mn, \
+					#~ groundtruth_faces, correct_faces+incorrect_faces, \
+					#~ correct_faces, incorrect_faces, fps/num}' \
+					#~ >> results-facedetector-$resolution
+		#~ done
+	#~ done
+#~ done 
 
 # TODO: eyepair detection plots
-for resolution in $resolutions
-do
-	> results-eyepairdetector-$resolution
-	for sf in $eyepair_cascade_sfs
-	do
-		for mn in $eyepair_cascade_mns
-		do
-			cat results_eyepairdetector-$resolution-* | \
+#~ for resolution in $resolutions
+#~ do
+	#~ > results-eyepairdetector-$resolution
+	#~ for sf in $eyepair_cascade_sfs
+	#~ do
+		#~ for mn in $eyepair_cascade_mns
+		#~ do
+			#~ cat results_eyepairdetector-$resolution-* | \
 			#~ awk -vsf="$sf" -vmn="$mn" \
 			#~ '{if($4 == sf && $5 == mn) \
 				#~ {groundtruth_faces+=$2; \
@@ -64,11 +66,10 @@ do
 					#~ groundtruth_faces, correct_faces+incorrect_faces, \
 					#~ correct_faces, incorrect_faces, fps/num}' \
 					#~ >> results-eyepairdetector-$resolution
-		done
-	done
-done 
+		#~ done
+	#~ done
+#~ done 
 
-exit
 # TODO: face recognition plots
 for resolution in $resolutions
 do

@@ -24,13 +24,13 @@ parser.add_argument(
 	default = sys.stdin)
 parser.add_argument(
 	"xlabel",
-	help = "description of y axis")
+	help = "description of x axis")
 parser.add_argument(
 	"ylabel",
 	help = "description of y axis")
 parser.add_argument(
 	"zlabel",
-	help = "description of y axis")
+	help = "description of z axis")
 parser.add_argument(
 	"-a", "--alpha",
 	help = "allow to define transparency of bars",
@@ -65,9 +65,9 @@ colors[np.argmax(values)] = 'r'
 fig = plt.figure()
 ax = fig.add_subplot(111, projection = "3d")
 ax.bar3d(
-		x, y, [min_value] * data_size, 
-		bar_dim, bar_dim, values, 
-		alpha = args.alpha, color = colors, zsort = "max", antialiased = True)
+	x, y, [min_value] * data_size, 
+	bar_dim, bar_dim, values, 
+	alpha = args.alpha, color = colors, zsort = "max", antialiased = True)
 ax.set_xlabel(args.xlabel)
 ax.set_ylabel(args.ylabel)
 ax.set_zlabel(args.zlabel)

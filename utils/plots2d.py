@@ -60,6 +60,9 @@ parser.add_argument(
 	"-d", "--disable_legend_name",
 	help = "disable displaying parameter name in legend",
 	action = "store_true")
+parser.add_argument(
+	"-c", "--colors",
+	help = "string with color names (first letter of color)")
 args = parser.parse_args()
 
 
@@ -80,7 +83,10 @@ param2 = [param2_dict[i] for i in param2]
 values = [float(i) for i in values]
 
 # constants for chart ploting
-default_colors = ('r', 'g', 'b', 'c', 'y', 'p')
+if args.colors:
+	colors = list(args.colors)
+else:
+	colors = ['r', 'g', 'b', 'c', 'y', 'p']
 bar_offset = 0.1
 # variables calculated on the basis of constants and input data
 n_bars = len(param1_ticks)
@@ -96,11 +102,11 @@ for i in set(param1):
 		label = param1_ticks[i]
 	else:
 		label = args.param1_name + ' = ' + param1_ticks[i]
-	plt.bar(bar_offset + index + i * bar_width, 
+	plt.bar(bar_offset + i * bar_width + index, 
 		[v for (p1, v) in zip(param1, values) if p1 == i], 
 		bar_width,
 		alpha = args.alpha,
-		color = default_colors[i],
+		color = colors[i],
 		label = label)
 
 plt.xlabel(args.param2_name)

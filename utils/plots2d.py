@@ -48,6 +48,14 @@ parser.add_argument(
 		of plot",
 	type = float,
 	default = 10.0)
+parser.add_argument(
+	"-p1r", "--param1_reverse",
+	help = "reverse sorting of param1 values",
+	action = "store_true")
+parser.add_argument(
+	"-p2r", "--param2_reverse",
+	help = "reverse sorting of param2 values",
+	action = "store_true")
 args = parser.parse_args()
 
 
@@ -56,8 +64,8 @@ args = parser.parse_args()
 	args.infile, dtype = np.str, unpack = True)
 data_size = len(zip(param1, param2, values))
 # get labels for parameters from input data
-param1_ticks = sorted(set(param1))
-param2_ticks = sorted(set(param2))
+param1_ticks = sorted(set(param1), reverse = args.param1_reverse)
+param2_ticks = sorted(set(param2), reverse = args.param2_reverse)
 # match sorted labels with natural numbers starting from zero
 param1_dict = dict(itertools.izip(param1_ticks, range(len(param1_ticks))))
 param2_dict = dict(itertools.izip(param2_ticks, range(len(param2_ticks))))

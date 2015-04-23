@@ -56,6 +56,10 @@ parser.add_argument(
 	"-p2r", "--param2_reverse",
 	help = "reverse sorting of param2 values",
 	action = "store_true")
+parser.add_argument(
+	"-d", "--disable_legend_name",
+	help = "disable displaying parameter name in legend",
+	action = "store_true")
 args = parser.parse_args()
 
 
@@ -88,12 +92,16 @@ bar_width = (1.0 - 2 * bar_offset) / n_bars
 fig, ax = plt.subplots()
 
 for i in set(param1):
+	if args.disable_legend_name:
+		label = param1_ticks[i]
+	else:
+		label = args.param1_name + ' = ' + param1_ticks[i]
 	plt.bar(bar_offset + index + i * bar_width, 
 		[v for (p1, v) in zip(param1, values) if p1 == i], 
 		bar_width,
 		alpha = args.alpha,
 		color = default_colors[i],
-		label = args.param1_name + ' = ' + param1_ticks[i])
+		label = label)
 
 plt.xlabel(args.param2_name)
 plt.ylabel(args.value_name)

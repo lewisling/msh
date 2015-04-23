@@ -3,6 +3,7 @@
 import sys
 import itertools
 import math
+import csv
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
@@ -51,18 +52,20 @@ args = parser.parse_args()
 
 
 # load data from stdin or input file
-[param1, param2, values] = np.loadtxt(args.infile, unpack = True)
+[param1, param2, values] = np.loadtxt(
+	args.infile, dtype = np.str, unpack = True)
 data_size = len(zip(param1, param2, values))
 # get labels for parameters from input data
-param1_ticks = sorted(set([str(i) for i in param1]))
-param2_ticks = sorted(set([str(i) for i in param2]))
+param1_ticks = sorted(set(param1))
+param2_ticks = sorted(set(param2))
 # match sorted labels with natural numbers starting from zero
 param1_dict = dict(itertools.izip(param1_ticks, range(len(param1_ticks))))
 param2_dict = dict(itertools.izip(param2_ticks, range(len(param2_ticks))))
 # change param1 and param2 to match above numbers
-param1 = [param1_dict[str(i)] for i in param1]
-param2 = [param2_dict[str(i)] for i in param2]
-
+param1 = [param1_dict[i] for i in param1]
+param2 = [param2_dict[i] for i in param2]
+# convert values from string to float
+values = [float(i) for i in values]
 
 # constants for chart ploting
 default_colors = ('r', 'g', 'b', 'c', 'y', 'p')
@@ -87,10 +90,12 @@ for i in set(param1):
 plt.xlabel(args.param2_name)
 plt.ylabel(args.value_name)
 plt.xticks(index + 0.5, param2_ticks)
+ax.yaxis.grid(True)
 ax.set_ylim(
 	math.floor(min(values) * args.round_factor) / args.round_factor, 
 	math.ceil(max(values) * args.round_factor) / args.round_factor)
-plt.legend(loc = args.legend_position)
+if n_bars > 1:
+	plt.legend(loc = args.legend_position)
 
 plt.tight_layout()
 plt.show()

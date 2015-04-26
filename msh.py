@@ -182,6 +182,17 @@ while(True):
 	finish_time = time.time()
 
 	if args.on_screen_info:
+		faces = face_cropper.get_facecascade_results()
+		for(fx, fy, fw, fh) in faces:
+			cv2.rectangle(
+				stream_reader.current_frame, 
+				(fx, fy), (fx + fw, fy + fh), (255, 0, 0), 1)
+		eyepairs = face_cropper.get_eyepaircascade_results()
+		for eyepair in eyepairs:
+			for(ex, ey, ew, eh) in eyepair:
+				cv2.rectangle(
+					stream_reader.current_frame, 
+					(ex, ey), (ex + ew, ey + eh), (0, 0, 255), 1)
 		cv2.putText(
 			stream_reader.current_frame, 
 			"FPS: " + str(round(1 / (finish_time - begin_time), 1)), 

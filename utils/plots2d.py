@@ -69,6 +69,14 @@ args = parser.parse_args()
 # load data from stdin or input file
 [param1, param2, values] = np.loadtxt(
 	args.infile, dtype = np.str, unpack = True)
+# TEMPORARY: printing input data for manual checking with drawn plots
+for (p1, p2, v) in zip(param1, param2, values):
+	print p1, p2, v
+# sorting input data
+sorted_data = sorted(zip(param1, param2, values))
+param1 = [p1 for (p1, _, _) in sorted_data]
+param2 = [p2 for (_, p2, _) in sorted_data]
+values = [v for (_, _, v) in sorted_data]
 data_size = len(zip(param1, param2, values))
 # get labels for parameters from input data
 param1_ticks = sorted(set(param1), reverse = args.param1_reverse)

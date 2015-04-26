@@ -9,11 +9,11 @@ class FaceCropper(object):
 	def __init__(
 			self, 
 			face_cascade_path, eyepair_cascade_path,
-			face_cascade_sf = 1.2, eyepair_cascade_sf = 1.01,
-			face_cascade_mn = 6, eyepair_cascade_nm = 5,
+			face_cascade_sf = 1.5, eyepair_cascade_sf = 1.01,
+			face_cascade_mn = 6, eyepair_cascade_nm = 6,
 			target_image_size = 96,
 			min_face_size = 0, max_face_size = 256,
-			eyes_position = 0.33, eyes_width = 0.67,
+			eyes_position = 0.35, eyes_width = 0.95,
 			histogram_equalization = False,
 			debug = True):
 		self.face_cascade_sf = face_cascade_sf

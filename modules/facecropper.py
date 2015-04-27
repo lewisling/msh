@@ -133,7 +133,7 @@ if __name__ == "__main__":
 	parser.add_argument(
 		"-fsf", "--face_cascade_sf",
 		help = "face detection algorithm parameter - scale_factor",
-		default = 1.2,
+		default = 1.5,
 		type = float)
 	parser.add_argument(
 		"-fmn", "--face_cascade_mn",
@@ -148,7 +148,7 @@ if __name__ == "__main__":
 	parser.add_argument(
 		"-emn", "--eyepair_cascade_mn",
 		help = "eyepair detection algorithm parameter - min_neighbors",
-		default = 5,
+		default = 6,
 		type = int)
 	parser.add_argument(
 		"-s", "--cropped_image_size",
@@ -169,12 +169,12 @@ if __name__ == "__main__":
 		"-p", "--eyes_position",
 		help = "y eyes position in cropped image, given as percentage of \
 			croped image height",
-		default = 0.33,
+		default = 0.35,
 		type = float)
 	parser.add_argument(
 		"-w", "--eyes_width",
 		help = "determines percentage of eyes width in cropped image width",
-		default = 0.67,
+		default = 0.95,
 		type = float)
 	parser.add_argument(
 		"-he", "--histogram_equalization",
@@ -211,7 +211,17 @@ if __name__ == "__main__":
 	for face_image, (x, y, w, h) in zip(face_images, face_locations):
 		cv2.imshow("Face: " + str(x) + ' ' + str(y), face_image)
 		cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 255, 255), 1)
-		print "Face location: " + str(x), str(y), str(w), str(h)
+		print "Cropped face location: " + str(x), str(y), str(w), str(h)
+	faces = face_cropper.get_facecascade_results()
+	for(fx, fy, fw, fh) in faces:
+		cv2.rectangle(frame, (fx, fy), (fx + fw, fy + fh), (255, 0, 0), 1)
+		print "Detected face location: " + str(fx), str(fy), str(fw), str(fh)
+	eyepairs = face_cropper.get_eyepaircascade_results()
+	for eyepair in eyepairs:
+		for(ex, ey, ew, eh) in eyepair:
+			cv2.rectangle(frame, (ex, ey), (ex + ew, ey + eh), (0, 0, 255), 1)
+			print "Detected eyepair location: " \
+				+ str(ex), str(ey), str(ew), str(eh)
 	cv2.imshow("Input frame", frame)
 		
 	if cv2.waitKey(0) & 0xFF == ord('q'):

@@ -44,6 +44,8 @@ class MultipleFiles(StreamReader):
 	def read(self):
 		super(MultipleFiles, self).read()
 		self.current_frame = cv2.imread(next(self._frames_paths))
+		if self.current_frame == None:
+			raise IOError("Failed to read stream")
 		self.gray_frame = cv2.cvtColor(self.current_frame, cv2.COLOR_BGR2GRAY)
 		return self.gray_frame
 

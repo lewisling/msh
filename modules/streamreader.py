@@ -78,10 +78,16 @@ class Stream(StreamReader):
 		if self.debug:
 			print "Stream type: stream"
 			print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-		self._stream = cv2.VideoCapture(self.path)
+		try:
+			int(self.path)
+		except:
+			self._stream = cv2.VideoCapture(self.path)
+		else:
+			self._stream = cv2.VideoCapture(int(self.path))
 		
 	def __del__(self):
 		super(Stream, self).__del__()
+		self._stream.release()
 		
 	def read(self):
 		super(Stream, self).read()

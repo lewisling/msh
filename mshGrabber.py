@@ -30,10 +30,6 @@ parser.add_argument(
 	help = "id of person in sequence",
 	type = int)
 parser.add_argument(
-	"-o", "--on_screen_info",
-	help = "enable on-screen informations",
-	action = "store_true")
-parser.add_argument(
 	"-f", "--max_fps",
 	help = "allows to set fps limiter",
 	default = 25.0,
@@ -123,29 +119,28 @@ while(True):
 			stream_reader.current_frame)
 		n_frames = n_frames + 1
 	
-	if args.on_screen_info:
-		if grabbing_active:
-			cv2.putText(
-				stream_reader.current_frame, 
-				"RECORDING ACTIVE", 
-				(0, 12), 
-				cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 0, 255), 2)
-		else:
-			cv2.putText(
-				stream_reader.current_frame, 
-				"RECORDING NOT ACTIVE", 
-				(0, 12), 
-				cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
+	if grabbing_active:
 		cv2.putText(
 			stream_reader.current_frame, 
-			"FPS: " + str(round(1 / frame_time, 1)), 
-			(0, 25), 
-			cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
+			"RECORDING ACTIVE", 
+			(0, 12), 
+			cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 0, 255), 2)
+	else:
 		cv2.putText(
 			stream_reader.current_frame, 
-			"Grabbed frames: " + str(n_frames), 
-			(0, 38), 
+			"RECORDING NOT ACTIVE", 
+			(0, 12), 
 			cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
+	cv2.putText(
+		stream_reader.current_frame, 
+		"FPS: " + str(round(1 / frame_time, 1)), 
+		(0, 25), 
+		cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
+	cv2.putText(
+		stream_reader.current_frame, 
+		"Grabbed frames: " + str(n_frames), 
+		(0, 38), 
+		cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
 	cv2.imshow("mlnSpyHole - main window", stream_reader.current_frame)
 	
 	pressed_key = cv2.waitKey(1) & 0xFF

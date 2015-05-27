@@ -141,7 +141,7 @@ while(True):
 		"Grabbed frames: " + str(n_frames), 
 		(0, 38), 
 		cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
-	cv2.imshow("mlnSpyHole - main window", stream_reader.current_frame)
+	cv2.imshow("mlnSpyHole - mshGrabber window", stream_reader.current_frame)
 	
 	pressed_key = cv2.waitKey(1) & 0xFF
 	if pressed_key == ord('q'):

@@ -76,6 +76,7 @@ target_name = target_path[target_path.rfind("/") + 1:]
 xml_path = args.target_path + target_name + ".xml"
 
 grabbing_active = False
+n_frames = 0
 
 # checking if xml file in target directory exists and trying to create it,
 # then, if creating was succesfull, formating basic xml, saving it and exit
@@ -120,6 +121,7 @@ while(True):
 		cv2.imwrite(
 			args.target_path + frame_name + ".jpg", 
 			stream_reader.current_frame)
+		n_frames = n_frames + 1
 	
 	if args.on_screen_info:
 		if grabbing_active:
@@ -127,7 +129,7 @@ while(True):
 				stream_reader.current_frame, 
 				"RECORDING ACTIVE", 
 				(0, 12), 
-				cv2.FONT_HERSHEY_PLAIN, 1.0, (128, 128, 128), 2)
+				cv2.FONT_HERSHEY_PLAIN, 1.0, (0, 0, 255), 2)
 		else:
 			cv2.putText(
 				stream_reader.current_frame, 
@@ -138,6 +140,11 @@ while(True):
 			stream_reader.current_frame, 
 			"FPS: " + str(round(1 / frame_time, 1)), 
 			(0, 25), 
+			cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
+		cv2.putText(
+			stream_reader.current_frame, 
+			"Grabbed frames: " + str(n_frames), 
+			(0, 38), 
 			cv2.FONT_HERSHEY_PLAIN, 1.0, (255, 255, 255), 1)
 	cv2.imshow("mlnSpyHole - main window", stream_reader.current_frame)
 	

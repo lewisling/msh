@@ -12,7 +12,7 @@ class StreamReader(object):
 	def __init__(self, path, max_fps = float('inf'), debug = True):
 		self.path = path
 		self.fps = max_fps
-		self._frame_time = 0.0
+		self._frame_time = 0
 		self.debug = debug
 		if self.debug:
 			print "~~~~~~ StreamReader created ~~~~~~"
@@ -23,8 +23,9 @@ class StreamReader(object):
 			print "~~~~~~ StreamReader destroyer triggered ~~~~~~"
 		
 	def read(self):
-		while(time.time() < (self._frame_time + 1.0 / self.fps)):
-			pass
+		delay_time = self._frame_time + (1.0 / self.fps) - time.time()
+		if delay_time > 0:
+			time.sleep(delay_time)
 		self._frame_time = time.time()
 		
 		

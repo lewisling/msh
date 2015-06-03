@@ -49,13 +49,23 @@ parser.add_argument(
 	help = "print various informations to stdout",
 	action = "store_true")
 parser.add_argument(
-	"-sf", "--scale_factor",
-	help = "one of the face detection algorithm parameters",
-	default = 1.2,
+	"-fsf", "-face_cascade_sf",
+	help = "face detection algorithm parameter - scale_factor",
+	default = 1.5,
 	type = float)
 parser.add_argument(
-	"-mn", "--min_neighbors",
-	help = "one of the face detection algorithm parameters",
+	"-fmn", "-face_cascade_mn",
+	help = "face detection algorithm parameter - min_neighbors",
+	default = 6,
+	type = int)
+parser.add_argument(
+	"-efs", "-eyepair_cascade_sf",
+	help = "eyepair detection algorithm parameter - scale_factor",
+	default = 1.01,
+	type = float)
+parser.add_argument(
+	"-emn", "-eyepair_cascade_mn",
+	help = "eyepair detection algorithm parameter - min_neighbors",
 	default = 6,
 	type = int)
 parser.add_argument(
@@ -111,8 +121,10 @@ else:
 try:
 	face_cropper = facecropper.FaceCropper(
 		args.face_cascade_path, args.eyepair_cascade_path,
-		face_cascade_sf = args.scale_factor,
-		face_cascade_mn = args.min_neighbors,
+		face_cascade_sf = args.face_cascade_sf,
+		eyepair_cascade_sf = args.eyepair_cascade_sf,
+		face_cascade_mn = args.face_cascade_mn, 
+		eyepair_cascade_mn = args.eyepair_cascade_mn,
 		eyes_position = args.eyes_position, 
 		eyes_width = args.eyes_width,
 		min_face_size = args.min_face_size, 

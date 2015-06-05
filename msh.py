@@ -49,22 +49,22 @@ parser.add_argument(
 	help = "print various informations to stdout",
 	action = "store_true")
 parser.add_argument(
-	"-fsf", "-face_cascade_sf",
+	"-fsf", "--face_cascade_sf",
 	help = "face detection algorithm parameter - scale_factor",
 	default = 1.5,
 	type = float)
 parser.add_argument(
-	"-fmn", "-face_cascade_mn",
+	"-fmn", "--face_cascade_mn",
 	help = "face detection algorithm parameter - min_neighbors",
 	default = 6,
 	type = int)
 parser.add_argument(
-	"-efs", "-eyepair_cascade_sf",
+	"-efs", "--eyepair_cascade_sf",
 	help = "eyepair detection algorithm parameter - scale_factor",
 	default = 1.01,
 	type = float)
 parser.add_argument(
-	"-emn", "-eyepair_cascade_mn",
+	"-emn", "--eyepair_cascade_mn",
 	help = "eyepair detection algorithm parameter - min_neighbors",
 	default = 6,
 	type = int)
@@ -121,15 +121,12 @@ else:
 try:
 	face_cropper = facecropper.FaceCropper(
 		args.face_cascade_path, args.eyepair_cascade_path,
-		face_cascade_sf = args.face_cascade_sf,
-		eyepair_cascade_sf = args.eyepair_cascade_sf,
-		face_cascade_mn = args.face_cascade_mn, 
-		eyepair_cascade_mn = args.eyepair_cascade_mn,
-		eyes_position = args.eyes_position, 
-		eyes_width = args.eyes_width,
-		min_face_size = args.min_face_size, 
-		max_face_size = args.max_face_size,
-		histogram_equalization = args.histogram_equalization)
+		args.face_cascade_sf, args.eyepair_cascade_sf,
+		args.face_cascade_mn, args.eyepair_cascade_mn,
+		96,
+		args.min_face_size, args.max_face_size,
+		args.eyes_position, args.eyes_width,
+		args.histogram_equalization)
 except:
 	raise
 

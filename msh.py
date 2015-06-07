@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import modules.defaultvalues as dv
 import sys
 import glob
 import time
@@ -23,12 +24,6 @@ parser.add_argument(
 	"stream_path",
 	help = "path to the video stream")
 parser.add_argument(
-	"face_cascade_path",
-	help = "path to face HaarCascade")
-parser.add_argument(
-	"eyepair_cascade_path",
-	help = "path to eyepair HaarCascade")
-parser.add_argument(
 	"facerec_method",
 	help = "face recognition method",
 	choices = ["eigenfaces", "fisherfaces", "lbph"])
@@ -45,60 +40,69 @@ parser.add_argument(
 	help = "enable displaying miniatures of detected id, \
 		taken from given path")
 parser.add_argument(
-	"-v", "--verbose",
-	help = "print various informations to stdout",
-	action = "store_true")
+	"-fcp", "--face_cascade_path",
+	help = "path to face HaarCascade",
+	default=dv.face_cascade_path)
+parser.add_argument(
+	"-ecp", "--eyepair_cascade_path",
+	help = "path to eyepair HaarCascade",
+	default=dv.eyepair_cascade_path)
 parser.add_argument(
 	"-fsf", "--face_cascade_sf",
 	help = "face detection algorithm parameter - scale_factor",
-	default = 1.5,
+	default = dv.face_cascade_sf,
 	type = float)
 parser.add_argument(
 	"-fmn", "--face_cascade_mn",
 	help = "face detection algorithm parameter - min_neighbors",
-	default = 6,
+	default = dv.face_cascade_mn,
 	type = int)
 parser.add_argument(
-	"-efs", "--eyepair_cascade_sf",
+	"-esf", "--eyepair_cascade_sf",
 	help = "eyepair detection algorithm parameter - scale_factor",
-	default = 1.01,
+	default = dv.eyepair_cascade_sf,
 	type = float)
 parser.add_argument(
 	"-emn", "--eyepair_cascade_mn",
 	help = "eyepair detection algorithm parameter - min_neighbors",
-	default = 6,
+	default = dv.eyepair_cascade_mn,
 	type = int)
+parser.add_argument(
+	"-s", "--cropped_image_size",
+	help = "cropped image dimmension in pixels",
+	default = dv.target_image_size,
+	type = int)
+parser.add_argument(
+	"-minf", "--min_face_size",
+	help = "minimum possible face size",
+	default = dv.min_face_size,
+	type = int)
+parser.add_argument(
+	"-maxf", "--max_face_size",
+	help = "maximum possible face size",
+	default = dv.max_face_size,
+	type = int)		
+parser.add_argument(
+	"-p", "--eyes_position",
+	help = "y eyes position in cropped image, given as percentage of \
+		croped image height",
+	default = dv.eyes_position,
+	type = float)
+parser.add_argument(
+	"-w", "--eyes_width",
+	help = "determines percentage of eyes width in cropped image width",
+	default = dv.eyes_width,
+	type = float)
+parser.add_argument(
+	"-he", "--histogram_equalization",
+	help = "enable histogram equalization in processing",
+	action = "store_true")
 parser.add_argument(
 	"-ft", "--facerec_threshold",
 	help = "face recognition threshold parameter, \
 		bigger means less accurate",
 	default = sys.float_info.max,
 	type = float)
-parser.add_argument(
-	"-minf", "--min_face_size",
-	help = "minimum possible face size",
-	default = 0,
-	type = int)
-parser.add_argument(
-	"-maxf", "--max_face_size",
-	help = "maximum possible face size",
-	default = 256,
-	type = int)
-parser.add_argument(
-	"-p", "--eyes_position",
-	help = "y eyes position in cropped image, given as percentage of \
-		croped image height",
-	default = 0.33,
-	type = float)
-parser.add_argument(
-	"-w", "--eyes_width",
-	help = "determines percentage of eyes width in cropped image width",
-	default = 0.67,
-	type = float)
-parser.add_argument(
-	"-he", "--histogram_equalization",
-	help = "enable histogram equalization in processing",
-	action = "store_true")
 parser.add_argument(
 	"-f", "--max_fps",
 	help = "allows to set fps limiter",
@@ -123,7 +127,7 @@ try:
 		args.face_cascade_path, args.eyepair_cascade_path,
 		args.face_cascade_sf, args.eyepair_cascade_sf,
 		args.face_cascade_mn, args.eyepair_cascade_mn,
-		96,
+		args.cropped_image_size,
 		args.min_face_size, args.max_face_size,
 		args.eyes_position, args.eyes_width,
 		args.histogram_equalization)

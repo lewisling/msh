@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import defaultvalues as dv
 import cv2
 
 
@@ -8,18 +9,23 @@ class FaceCropper(object):
 			
 	def __init__(
 			self, 
-			face_cascade_path, eyepair_cascade_path,
-			face_cascade_sf = 1.5, eyepair_cascade_sf = 1.01,
-			face_cascade_mn = 6, eyepair_cascade_nm = 6,
-			target_image_size = 96,
-			min_face_size = 0, max_face_size = 256,
-			eyes_position = 0.35, eyes_width = 0.95,
-			histogram_equalization = False,
+			face_cascade_path = dv.face_cascade_path, 
+			eyepair_cascade_path = dv.eyepair_cascade_path,
+			face_cascade_sf = dv.face_cascade_sf, 
+			eyepair_cascade_sf = dv.eyepair_cascade_sf,
+			face_cascade_mn = dv.face_cascade_mn, 
+			eyepair_cascade_mn = dv.eyepair_cascade_mn,
+			target_image_size = dv.target_image_size,
+			min_face_size = dv.min_face_size, 
+			max_face_size = dv.max_face_size,
+			eyes_position = dv.eyes_position, 
+			eyes_width = dv.eyes_width,
+			histogram_equalization = dv.histogram_equalization,
 			debug = True):
 		self.face_cascade_sf = face_cascade_sf
 		self.face_cascade_mn = face_cascade_mn
 		self.eyepair_cascade_sf = eyepair_cascade_sf
-		self.eyepair_cascade_nm = eyepair_cascade_nm
+		self.eyepair_cascade_mn = eyepair_cascade_mn
 		self.target_image_size = (target_image_size, target_image_size)
 		self.min_face_size = (min_face_size, min_face_size)
 		self.max_face_size = (max_face_size, max_face_size)
@@ -44,7 +50,7 @@ class FaceCropper(object):
 			print "\b, min neighbors: " + str(face_cascade_mn) + '\n'
 			print "Eyepair cascade: " + str(eyepair_cascade_path)
 			print "scale factor: " + str(eyepair_cascade_sf),
-			print "\b, min neighbors: " + str(eyepair_cascade_nm) + '\n'
+			print "\b, min neighbors: " + str(eyepair_cascade_mn) + '\n'
 			print "Eyes y-position: " + str(self.eyes_position), 
 			print "\b, eyes width: " + str(self.eyes_width)
 			print "Face size dimensions:",
@@ -72,7 +78,7 @@ class FaceCropper(object):
 		for (x, y, w, h) in self._facecascade_results:
 			face_area = frame_img[y:(y + h), x:(x + w)]
 			eyes = self._eyepair_cascade.detectMultiScale(
-				face_area, self.eyepair_cascade_sf, self.eyepair_cascade_nm)
+				face_area, self.eyepair_cascade_sf, self.eyepair_cascade_mn)
 			# adding bbox position to coords of detected eyepair
 			eyes = [(ex + x, ey + y, ew, eh) for (ex, ey, ew, eh) in eyes]
 			self._eyepaircascade_results.append(eyes)
@@ -125,56 +131,58 @@ if __name__ == "__main__":
 		"image_path",
 		help = "path to an image which is intended for processing")
 	parser.add_argument(
-		"face_cascade_path",
-		help = "path to face HaarCascade")
+		"-fcp", "--face_cascade_path",
+		help = "path to face HaarCascade",
+		default=dv.face_cascade_path)
 	parser.add_argument(
-		"eyepair_cascade_path",
-		help = "path to eyepair HaarCascade")
+		"-ecp", "--eyepair_cascade_path",
+		help = "path to eyepair HaarCascade",
+		default=dv.eyepair_cascade_path)
 	parser.add_argument(
 		"-fsf", "--face_cascade_sf",
 		help = "face detection algorithm parameter - scale_factor",
-		default = 1.5,
+		default = dv.face_cascade_sf,
 		type = float)
 	parser.add_argument(
 		"-fmn", "--face_cascade_mn",
 		help = "face detection algorithm parameter - min_neighbors",
-		default = 6,
+		default = dv.face_cascade_mn,
 		type = int)
 	parser.add_argument(
 		"-esf", "--eyepair_cascade_sf",
 		help = "eyepair detection algorithm parameter - scale_factor",
-		default = 1.01,
+		default = dv.eyepair_cascade_sf,
 		type = float)
 	parser.add_argument(
 		"-emn", "--eyepair_cascade_mn",
 		help = "eyepair detection algorithm parameter - min_neighbors",
-		default = 6,
+		default = dv.eyepair_cascade_mn,
 		type = int)
 	parser.add_argument(
 		"-s", "--cropped_image_size",
 		help = "cropped image dimmension in pixels",
-		default = 96,
+		default = dv.target_image_size,
 		type = int)
 	parser.add_argument(
 		"-minf", "--min_face_size",
 		help = "minimum possible face size",
-		default = 0,
+		default = dv.min_face_size,
 		type = int)
 	parser.add_argument(
 		"-maxf", "--max_face_size",
 		help = "maximum possible face size",
-		default = 256,
+		default = dv.max_face_size,
 		type = int)		
 	parser.add_argument(
 		"-p", "--eyes_position",
 		help = "y eyes position in cropped image, given as percentage of \
 			croped image height",
-		default = 0.35,
+		default = dv.eyes_position,
 		type = float)
 	parser.add_argument(
 		"-w", "--eyes_width",
 		help = "determines percentage of eyes width in cropped image width",
-		default = 0.95,
+		default = dv.eyes_width,
 		type = float)
 	parser.add_argument(
 		"-he", "--histogram_equalization",

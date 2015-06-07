@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import modules.defaultvalues as dv
 import sys
 import os
 import glob
@@ -27,53 +28,59 @@ parser.add_argument(
 	"id_path",
 	help = "path to xml with id information or groundtruth")
 parser.add_argument(
-	"face_cascade_path",
-	help = "path to face HaarCascade")
+	"-fcp", "--face_cascade_path",
+	help = "path to face HaarCascade",
+	default=dv.face_cascade_path)
 parser.add_argument(
-	"face_cascade_sf",
+	"-ecp", "--eyepair_cascade_path",
+	help = "path to eyepair HaarCascade",
+	default=dv.eyepair_cascade_path)
+parser.add_argument(
+	"-fsf", "--face_cascade_sf",
 	help = "face detection algorithm parameter - scale_factor",
+	default = dv.face_cascade_sf,
 	type = float)
 parser.add_argument(
-	"face_cascade_mn",
+	"-fmn", "--face_cascade_mn",
 	help = "face detection algorithm parameter - min_neighbors",
+	default = dv.face_cascade_mn,
 	type = int)
 parser.add_argument(
-	"eyepair_cascade_path",
-	help = "path to eyepair HaarCascade")
-parser.add_argument(
-	"eyepair_cascade_sf",
+	"-esf", "--eyepair_cascade_sf",
 	help = "eyepair detection algorithm parameter - scale_factor",
+	default = dv.eyepair_cascade_sf,
 	type = float)
 parser.add_argument(
-	"eyepair_cascade_mn",
+	"-emn", "--eyepair_cascade_mn",
 	help = "eyepair detection algorithm parameter - min_neighbors",
+	default = dv.eyepair_cascade_mn,
 	type = int)
 parser.add_argument(
 	"-s", "--cropped_image_size",
 	help = "cropped image dimmension in pixels",
-	default = 96,
+	default = dv.target_image_size,
 	type = int)
-parser.add_argument(
-	"-p", "--eyes_position",
-	help = "y eyes position in cropped image, given as percentage of \
-		cropped image height",
-	default = 0.33,
-	type = float)
-parser.add_argument(
-	"-w", "--eyes_width",
-	help = "determines percentage of eyes width in cropped image width",
-	default = 0.67,
-	type = float)
 parser.add_argument(
 	"-minf", "--min_face_size",
 	help = "minimum possible face size",
-	default = 0,
+	default = dv.min_face_size,
 	type = int)
 parser.add_argument(
 	"-maxf", "--max_face_size",
 	help = "maximum possible face size",
-	default = 256,
-	type = int)	
+	default = dv.max_face_size,
+	type = int)		
+parser.add_argument(
+	"-p", "--eyes_position",
+	help = "y eyes position in cropped image, given as percentage of \
+		croped image height",
+	default = dv.eyes_position,
+	type = float)
+parser.add_argument(
+	"-w", "--eyes_width",
+	help = "determines percentage of eyes width in cropped image width",
+	default = dv.eyes_width,
+	type = float)	
 parser.add_argument(
 	"-he", "--histogram_equalization",
 	help = "enable histogram equalization of output images",

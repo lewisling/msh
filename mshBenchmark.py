@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import modules.defaultvalues as dv
 import sys
 import time
 import argparse
@@ -20,13 +21,6 @@ parser.add_argument(
 parser.add_argument(
 	"groundtruth_xml",
 	help = "path to xml file with groundtruth for given video sequence")
-parser.add_argument(
-	"face_cascade_path",
-	help = "path to face HaarCascade")
-parser.add_argument(
-	"face_cascade_sf",
-	help = "face detection algorithm parameter - scale_factor",
-	type = float)
 parser.add_argument(
 	"face_cascade_mn",
 	help = "face detection algorithm parameter - min_neighbors",
@@ -71,18 +65,18 @@ parser.add_argument(
 parser.add_argument(
 	"-s", "--cropped_image_size",
 	help = "cropped image dimmension in pixels",
-	default = 96,
+	default = dv.target_image_size,
 	type = int)
 parser.add_argument(
 	"-minf", "--min_face_size",
 	help = "minimum possible face size",
-	default = 0,
+	default = dv.min_face_size,
 	type = int)
 parser.add_argument(
 	"-maxf", "--max_face_size",
 	help = "maximum possible face size",
-	default = 256,
-	type = int)		
+	default = dv.max_face_size,
+	type = int)			
 parser.add_argument(
 	"-r", "--resolution",
 	help = "resolution of processed stream, \

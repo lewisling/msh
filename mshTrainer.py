@@ -19,13 +19,14 @@ parser.add_argument(
 	"cropped_faces_dir", 
 	help = "path to properly prepared directory which contains cropped faces")
 parser.add_argument(
+	"-m", "--facerec_method",
+	help = "choose face recognition method for which training is performed",
+	choices = ["eigenfaces", "fisherfaces", "lbph"],
+	default = "lbph")
+parser.add_argument(
 	"-q", "--quiet",
 	help = "disable output verbosity",
 	action = "store_true")
-parser.add_argument(
-	"method",
-	help = "choose face recognition method for which training is performed",
-	choices = ["eigenfaces", "fisherfaces", "lbph"])
 args = parser.parse_args()
 
 

@@ -25,16 +25,17 @@ parser.add_argument(
 	help = "path to a directory where cropped faces will be written in \
 		different subdirectories for each id")
 parser.add_argument(
-	"id_path",
-	help = "path to xml with id information or groundtruth")
+	"-id", "--id_path",
+	help = "path to xml with id information or groundtruth (if not in \
+		stream_path)")
 parser.add_argument(
 	"-fcp", "--face_cascade_path",
 	help = "path to face HaarCascade",
-	default=dv.face_cascade_path)
+	default = dv.face_cascade_path)
 parser.add_argument(
 	"-ecp", "--eyepair_cascade_path",
 	help = "path to eyepair HaarCascade",
-	default=dv.eyepair_cascade_path)
+	default = dv.eyepair_cascade_path)
 parser.add_argument(
 	"-fsf", "--face_cascade_sf",
 	help = "face detection algorithm parameter - scale_factor",
@@ -101,7 +102,9 @@ if not os.path.exists(args.target_path):
 		os.makedirs(args.target_path)
 	except:
 		print "Can't mkdir target directories"
-		sys.exit(1)
+		sys.exit(1)	
+if args.id_path == None:
+	args.id_path = args.stream_path + "stream_content.xml"
 	
 # frames_info[frame_path, person_id]
 # Only frames which contains someone are loaded.

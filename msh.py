@@ -17,23 +17,25 @@ parser = argparse.ArgumentParser(
 	description = '''Main program which perform processing on the given \
 		video stream and send results to stdout.''')
 parser.add_argument(
-	"stream_type",
-	help = "type of a given stream",
-	choices = ["onefile", "multiplefiles", "stream"])
-parser.add_argument(
 	"stream_path",
 	help = "path to the video stream")
-parser.add_argument(
-	"facerec_method",
-	help = "face recognition method",
-	choices = ["eigenfaces", "fisherfaces", "lbph"])
 parser.add_argument(
 	"facerec_model_path",
 	help = "path to XML file with model state for chosen \
 		face recognition method")
 parser.add_argument(
-	"-o", "--on_screen_info",
-	help = "enable on-screen informations",
+	"-t", "--stream_type",
+	help = "type of a given stream",
+	choices = ["onefile", "stream"],
+	default = "onefile")
+parser.add_argument(
+	"-m", "--facerec_method",
+	help = "choose face recognition method for which training is performed",
+	choices = ["eigenfaces", "fisherfaces", "lbph"],
+	default = "lbph")
+parser.add_argument(
+	"-n", "--no_osd",
+	help = "disable on-screen informations",
 	action = "store_true")
 parser.add_argument(
 	"-rf", "--reference_faces_path",
@@ -177,7 +179,6 @@ while(True):
 	except:
 		print "End of stream"
 		break
-	
 	face_images = face_cropper.get_face_images(gray_frame)
 	face_locations = face_cropper.get_face_locations()
 	for face_image, (x, y, w, h) in zip(face_images, face_locations):
@@ -199,7 +200,7 @@ while(True):
 		
 	finish_time = time.time()
 
-	if args.on_screen_info:
+	if not args.no_osd:
 		#~ faces = face_cropper.get_facecascade_results()
 		#~ for(fx, fy, fw, fh) in faces:
 			#~ cv2.rectangle(

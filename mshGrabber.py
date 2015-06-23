@@ -16,10 +16,6 @@ parser = argparse.ArgumentParser(
 	description = '''Small utility to grab frames from given stream \
 		and save them in a specified dir''')
 parser.add_argument(
-	"stream_type",
-	help = "type of a given stream",
-	choices = ["onefile", "stream"])
-parser.add_argument(
 	"stream_path",
 	help = "path to the video stream")
 parser.add_argument(
@@ -30,9 +26,14 @@ parser.add_argument(
 	help = "id of person in sequence",
 	type = int)
 parser.add_argument(
+	"-t", "--stream_type",
+	help = "type of a given stream",
+	choices = ["onefile", "stream"],
+	default = "onefile")
+parser.add_argument(
 	"-f", "--max_fps",
 	help = "allows to set fps limiter",
-	default = 25.0,
+	default = 10.0,
 	type = float)
 args = parser.parse_args()
 
@@ -69,7 +70,7 @@ person_id = str(args.identifier).rjust(4, '0')
 
 target_path = args.target_path[:len(args.target_path) - 1]
 target_name = target_path[target_path.rfind("/") + 1:]
-xml_path = args.target_path + target_name + ".xml"
+xml_path = args.target_path + "stream_content.xml"
 
 grabbing_active = False
 n_frames = 0

@@ -62,11 +62,11 @@ train_faces_indices = np.asarray(train_faces_indices, dtype = np.int32)
 
 ## training chosen face recognizer
 
-if args.method == "eigenfaces":
+if args.facerec_method == "eigenfaces":
 	face_recognizer = cv2.createEigenFaceRecognizer()
-elif args.method == "fisherfaces":
+elif args.facerec_method == "fisherfaces":
 	face_recognizer = cv2.createFisherFaceRecognizer()
-elif args.method == "lbph":
+elif args.facerec_method == "lbph":
 	face_recognizer = cv2.createLBPHFaceRecognizer()
 else:
 	pass
@@ -83,7 +83,7 @@ finish_time = time.time()
 ## saving trained set
 
 sequence_name = cropped_faces_dir[cropped_faces_dir.rfind('/') + 1:]
-xmlfile_name = sequence_name + '-' + args.method
+xmlfile_name = sequence_name + '-' + args.facerec_method
 if not args.quiet:
 	print "Begin saving trained model..."
 face_recognizer.save(cropped_faces_dir + '/' + xmlfile_name + ".xml")

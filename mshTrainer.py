@@ -83,7 +83,7 @@ finish_time = time.time()
 ## saving trained set
 
 sequence_name = cropped_faces_dir[cropped_faces_dir.rfind('/') + 1:]
-xmlfile_name = sequence_name + '-' + args.facerec_method
+xmlfile_name = "model-" + args.facerec_method
 if not args.quiet:
 	print "Begin saving trained model..."
 face_recognizer.save(cropped_faces_dir + '/' + xmlfile_name + ".xml")

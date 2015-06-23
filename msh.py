@@ -123,7 +123,9 @@ elif args.stream_type == "stream":
 	stream_reader = streamreader.Stream(args.stream_path, args.max_fps)
 else:
 	pass
-	
+
+if args.reference_faces_path[len(args.reference_faces_path) - 1] != '/':
+	args.reference_faces_path += '/'	
 if args.facerec_model_path[len(args.facerec_model_path) - 1] != '/':
 	args.facerec_model_path += '/'
 args.facerec_model_path = args.facerec_model_path + \

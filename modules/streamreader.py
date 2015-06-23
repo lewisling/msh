@@ -32,8 +32,8 @@ class StreamReader(object):
 class MultipleFiles(StreamReader):
 	
 
-	def __init__(self, path):
-		super(MultipleFiles, self).__init__(path)
+	def __init__(self, path, max_fps = float('inf')):
+		super(MultipleFiles, self).__init__(path, max_fps)
 		if self.debug:
 			print "Stream type: multiplefiles"
 			print "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"

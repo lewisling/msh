@@ -116,7 +116,7 @@ args = parser.parse_args()
 if args.stream_type == "onefile":
 	stream_reader = streamreader.OneFile(args.stream_path, args.max_fps)
 elif args.stream_type == "multiplefiles":
-	stream_reader = streamreader.MultipleFiles(args.stream_path)
+	stream_reader = streamreader.MultipleFiles(args.stream_path, float('inf'))
 elif args.stream_type == "stream":
 	stream_reader = streamreader.Stream(args.stream_path, args.max_fps)
 else:
@@ -177,6 +177,7 @@ while(True):
 	except:
 		print "End of stream"
 		break
+	
 	face_images = face_cropper.get_face_images(gray_frame)
 	face_locations = face_cropper.get_face_locations()
 	for face_image, (x, y, w, h) in zip(face_images, face_locations):

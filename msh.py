@@ -26,7 +26,7 @@ parser.add_argument(
 parser.add_argument(
 	"-t", "--stream_type",
 	help = "type of a given stream",
-	choices = ["onefile", "stream"],
+	choices = ["onefile", "multiplefiles", "stream"],
 	default = "onefile")
 parser.add_argument(
 	"-m", "--facerec_method",
